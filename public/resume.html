@@ -25,9 +25,9 @@
       position: absolute;
       left: 18px;
       top: 18px;
-      color: var(--accent);   /* ✅ make it blue/accent */
+      color: var(--accent);
       background: rgba(255,255,255,0.06);
-      padding: 6px 12px;      /* ✅ add padding for visibility */
+      padding: 6px 12px;
       border-radius: 6px;
       font-weight: bold;
       text-decoration: none;
@@ -55,19 +55,66 @@
       justify-content:space-between;
       background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
     }
+    
+    /* ✅ Enhanced professional text styling */
     .drop-left strong {
-      display: block;         /* ✅ ensures new line */
-      margin-bottom: 6px;     /* ✅ spacing from muted text */
-      color: var(--accent);   /* ✅ blue */
-      font-size: 1rem;
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent);
+      font-size: 1.15rem;           /* ✅ Larger, more prominent */
+      font-weight: 700;             /* ✅ Bolder */
+      letter-spacing: 0.3px;        /* ✅ Professional spacing */
     }
     .drop-left p {
-      color: #fff;            /* ✅ make description white */
-      margin: 0;              /* reset margins */
-      font-size: 0.9rem;
+      color: rgba(255,255,255,0.75); /* ✅ Slightly muted but readable */
+      margin: 0;
+      font-size: 0.95rem;            /* ✅ Slightly larger */
+      line-height: 1.5;              /* ✅ Better readability */
     }
-    .drop-actions { display:flex; gap:8px; align-items:center; }
-    .small-btn { padding:8px 12px; border-radius:8px; border:none; cursor:pointer; background:var(--accent); color:#062022; }
+    
+    /* ✅ FIXED: Make drop-actions buttons equal size */
+    .drop-actions { 
+      display: flex; 
+      gap: 8px; 
+      align-items: stretch;
+    }
+    
+    .drop-actions .small-btn {
+      padding: 12px 20px !important;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: background 0.25s, transform 0.1s;
+      white-space: nowrap;
+      min-width: 140px;
+      height: auto;
+      line-height: 1.2;
+    }
+    
+    .drop-actions .small-btn:hover {
+      background: #0097d6;
+      transform: translateY(-2px);
+    }
+    
+    .small-btn { 
+      padding: 10px 16px; 
+      border-radius: 6px; 
+      border: none; 
+      cursor: pointer; 
+      background: var(--accent); 
+      color: #fff;
+      font-weight: 600;
+      transition: background 0.25s, transform 0.1s;
+    }
+    
+    .small-btn:hover {
+      background: #0097d6;
+      transform: translateY(-2px);
+    }
     
     .resume-output {
       margin-top: 14px;
@@ -78,14 +125,13 @@
       border: 1px solid rgba(255,255,255,0.03);
       font-family: monospace;
       line-height: 1.6;
-      white-space: pre-wrap;   /* ✅ preserve line breaks */
+      white-space: pre-wrap;
       max-height: 300px;
       overflow-y: auto;
     }
 
     .analysis-controls { display:flex; gap:12px; margin-top:12px; align-items:center; flex-wrap:wrap; }
     
-    /* ✅ Results stacked vertically */
     .results-grid {
       display: flex;
       flex-direction: column;
@@ -112,24 +158,9 @@
       color: var(--accent);
       margin-top: -8px;
     }
-    /* Style Browse & Analyze Resume buttons */
-    button, .drop-right label {
-      background: var(--accent);    /* ✅ accent blue background */
-      color: #fff;                  /* ✅ white text */
-      border: none;
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.25s, transform 0.1s;
-    }
-
-    button:hover, .drop-right label:hover {
-      background: #0097d6;          /* ✅ slightly darker blue on hover */
-      transform: translateY(-2px);  /* ✅ small lift effect */
-    }
+    
     #career-advice h3 {
-      color: #4da6ff; /* nice blue accent */
+      color: #4da6ff;
       margin-top: 1rem;
     }
 
@@ -165,11 +196,6 @@
           <div class="analysis-controls" style="margin-top:8px;">
             <label><input type="radio" name="analysis-mode" value="short" checked> Short</label>
             <label><input type="radio" name="analysis-mode" value="detailed"> Detailed</label>
-            <select id="job-location" style="margin-left:8px;">
-              <option value="">Any location</option>
-              <option>Remote</option>
-              <option>Onsite</option>
-            </select>
           </div>
         </div>
 
