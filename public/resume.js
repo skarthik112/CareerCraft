@@ -371,12 +371,14 @@ ${text}
   }
 });
 
-/* --------- Download report --------- */
-document.getElementById('download-report').addEventListener('click', ()=>{
+/* --------- Download report (Fixed Version - No Special Characters) --------- */
+document.getElementById('download-report').addEventListener('click', async () => {
   const text = extractedTextEl.innerText || '';
   if (!text) return alert('Nothing to download. Analyze first.');
+  
   const found = extractSkillsFromText(text);
   const ats = computeATSScores(text, found);
+  
   const avgJobMatch = (function(){
     const foundSet = new Set(found.map(s=>s.keyword.toLowerCase()));
     const scored = JOBS.map(job=>{
@@ -387,16 +389,241 @@ document.getElementById('download-report').addEventListener('click', ()=>{
     });
     return Math.round(scored.reduce((a,b)=>a+b,0) / Math.max(1, scored.length));
   })();
-  const readiness = computeReadiness(ats.total, avgJobMatch, found);
-  const report = {
-    timestamp: new Date().toISOString(),
-    resume_text_excerpt: text.slice(0,200),
-    skills: found.map(s=>s.keyword),
-    ats, avgJobMatch, readiness
+  
+  const readinessData = computeReadiness(ats.total, avgJobMatch, found);
+  const readinessScore = readinessData.readiness;
+  
+  // Load jsPDF if not already loaded
+  if (typeof window.jspdf === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    document.head.appendChild(script);
+    await new Promise(resolve => script.onload = resolve);
+  }
+  
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  
+  // Helper function for score color
+  const getScoreColor = (score) => {
+    if (score >= 80) return [34, 197, 94]; // Green
+    if (score >= 60) return [234, 179, 8]; // Yellow
+    return [239, 68, 68]; // Red
   };
-  const blob = new Blob([JSON.stringify(report, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'careercraft_report.json'; document.body.appendChild(a); a.click();
-  a.remove(); URL.revokeObjectURL(url);
+  
+  // Header with background
+  doc.setFillColor(59, 130, 246); // Blue
+  doc.rect(0, 0, 210, 45, 'F');
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24);
+  doc.setFont(undefined, 'bold');
+  doc.text('CareerCraft Resume Analysis', 105, 20, { align: 'center' });
+  
+  doc.setFontSize(10);
+  doc.setFont(undefined, 'normal');
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 105, 32, { align: 'center' });
+  doc.text('Comprehensive Resume & Career Readiness Report', 105, 39, { align: 'center' });
+  
+  let yPos = 60;
+  doc.setTextColor(0, 0, 0);
+  
+  // Score Cards with better styling
+  const scores = [
+    { label: 'ATS Score', value: ats.total },
+    { label: 'Job Match', value: avgJobMatch },
+    { label: 'Readiness', value: readinessScore }
+  ];
+  
+  scores.forEach((item, idx) => {
+    const xPos = 15 + (idx * 65);
+    const color = getScoreColor(item.value);
+    
+    // Card background with shadow effect
+    doc.setFillColor(249, 250, 251);
+    doc.roundedRect(xPos, yPos, 60, 35, 3, 3, 'F');
+    doc.setDrawColor(220, 220, 220);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(xPos, yPos, 60, 35, 3, 3);
+    
+    // Score circle
+    doc.setFillColor(...color);
+    doc.circle(xPos + 18, yPos + 18, 12, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.text(`${item.value}%`, xPos + 18, yPos + 21, { align: 'center' });
+    
+    // Label
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'bold');
+    doc.text(item.label, xPos + 38, yPos + 15);
+    
+    // Status text
+    doc.setFontSize(8);
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(100, 100, 100);
+    const status = item.value >= 80 ? 'Excellent' : item.value >= 60 ? 'Good' : 'Needs Work';
+    doc.text(status, xPos + 38, yPos + 23);
+  });
+  
+  yPos += 50;
+  
+  // Divider line
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.3);
+  doc.line(15, yPos, 195, yPos);
+  yPos += 10;
+  
+  // ATS Breakdown with improved design
+  doc.setFontSize(15);
+  doc.setFont(undefined, 'bold');
+  doc.setTextColor(59, 130, 246);
+  doc.text('ATS Compatibility Breakdown', 20, yPos);
+  yPos += 12;
+  
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
+  doc.setFont(undefined, 'normal');
+  
+  const atsBreakdown = [
+    { label: 'Keywords Match', score: ats.breakdown.keywords, desc: 'Technical skills found' },
+    { label: 'Contact Info', score: ats.breakdown.contact, desc: 'Email & phone presence' },
+    { label: 'Section Structure', score: ats.breakdown.sections, desc: 'Standard sections' }
+  ];
+  
+  atsBreakdown.forEach(item => {
+    doc.setFont(undefined, 'bold');
+    doc.text(`${item.label}:`, 25, yPos);
+    
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text(item.desc, 25, yPos + 4);
+    
+    // Progress bar background
+    doc.setFillColor(229, 231, 235);
+    doc.roundedRect(95, yPos - 4, 85, 6, 2, 2, 'F');
+    
+    // Progress bar fill
+    const barWidth = (item.score / 100) * 85;
+    const color = getScoreColor(item.score);
+    doc.setFillColor(...color);
+    doc.roundedRect(95, yPos - 4, barWidth, 6, 2, 2, 'F');
+    
+    // Score text
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.setFont(undefined, 'bold');
+    doc.text(`${item.score}%`, 185, yPos);
+    
+    yPos += 14;
+  });
+  
+  yPos += 8;
+  
+  // Divider line
+  doc.setDrawColor(200, 200, 200);
+  doc.line(15, yPos, 195, yPos);
+  yPos += 10;
+  
+  // Skills Section with better layout
+  doc.setFontSize(15);
+  doc.setFont(undefined, 'bold');
+  doc.setTextColor(59, 130, 246);
+  doc.text(`Identified Skills (${found.length})`, 20, yPos);
+  yPos += 12;
+  
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(9);
+  doc.setFont(undefined, 'normal');
+  
+  // Skills in styled boxes
+  let xPos = 20;
+  let rowCount = 0;
+  found.forEach((skill) => {
+    const skillText = skill.keyword;
+    const textWidth = doc.getTextWidth(skillText) + 8;
+    
+    if (xPos + textWidth > 190) {
+      xPos = 20;
+      yPos += 12;
+      rowCount++;
+    }
+    
+    if (yPos > 260) {
+      doc.addPage();
+      yPos = 20;
+      xPos = 20;
+      rowCount = 0;
+    }
+    
+    // Skill badge with gradient-like effect
+    doc.setFillColor(59, 130, 246);
+    doc.roundedRect(xPos, yPos - 6, textWidth, 9, 2, 2, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFont(undefined, 'bold');
+    doc.text(skillText, xPos + 4, yPos);
+    
+    xPos += textWidth + 4;
+  });
+  
+  yPos += 18;
+  
+  // Add page break if needed
+  if (yPos > 230) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
+  // Divider line
+  doc.setDrawColor(200, 200, 200);
+  doc.line(15, yPos, 195, yPos);
+  yPos += 10;
+  
+  // Resume Excerpt with better formatting
+  doc.setFontSize(15);
+  doc.setFont(undefined, 'bold');
+  doc.setTextColor(59, 130, 246);
+  doc.text('Resume Excerpt', 20, yPos);
+  yPos += 12;
+  
+  doc.setTextColor(80, 80, 80);
+  doc.setFontSize(9);
+  doc.setFont(undefined, 'normal');
+  const excerpt = text.slice(0, 800) + (text.length > 800 ? '...' : '');
+  const splitExcerpt = doc.splitTextToSize(excerpt, 170);
+  
+  splitExcerpt.forEach(line => {
+    if (yPos > 275) {
+      doc.addPage();
+      yPos = 20;
+    }
+    doc.text(line, 20, yPos);
+    yPos += 5;
+  });
+  
+  // Footer on all pages with branding
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    
+    // Footer background
+    doc.setFillColor(249, 250, 251);
+    doc.rect(0, 282, 210, 15, 'F');
+    
+    // Footer text
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Page ${i} of ${pageCount}`, 105, 289, { align: 'center' });
+    
+    doc.setFontSize(7);
+    doc.text('CareerCraft - AI-Powered Career Guidance Platform', 105, 293, { align: 'center' });
+  }
+  
+  doc.save('careercraft_report.pdf');
 });
