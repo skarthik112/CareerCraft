@@ -8,29 +8,30 @@ body {
 
 /* Home Button */
 .home-btn {
-      position: fixed;       /* stays at top-left */
-      top: 20px;
-      left: 20px;
-      z-index: 1000;
-      display: inline-block;
-      margin: 15px 25px;
-      padding: 8px 14px;
-      background: #1e1e1e;
-      border-radius: 6px;
-      color: #ccc;
-      text-decoration: none;
-      transition: 0.2s;
-    }
-    .home-btn:hover {
-      background: #333;
-      color: #fff;
+  position: fixed;
+  top: clamp(15px, 3vw, 20px);
+  left: clamp(15px, 3vw, 20px);
+  z-index: 1000;
+  display: inline-block;
+  margin: 0;
+  padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2vw, 14px);
+  background: #1e1e1e;
+  border-radius: 6px;
+  color: #ccc;
+  text-decoration: none;
+  transition: 0.2s;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+}
+.home-btn:hover {
+  background: #333;
+  color: #fff;
 }
 
 /* Container */
 .container {
   max-width: 900px;
-  margin: 20px auto;
-  padding: 20px;
+  margin: clamp(15px, 3vw, 20px) auto;
+  padding: clamp(15px, 3vw, 20px);
   background: #161b22;
   border-radius: 12px;
   box-shadow: 0 0 25px rgba(0, 200, 255, 0.2);
@@ -40,7 +41,7 @@ body {
 .page-title {
   text-align: center;
   color: #00c3ff;
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
   margin-bottom: 10px;
 }
 
@@ -48,6 +49,7 @@ body {
   text-align: center;
   color: #b0b3b8;
   margin-bottom: 20px;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
 }
 
 /* Settings Layout */
@@ -55,23 +57,28 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
+  gap: clamp(10px, 2vw, 15px);
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
+.mock-settings label {
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+}
+
 /* Dropdown Styling */
 .dropdown {
-  padding: 8px 12px;
+  padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2vw, 12px);
   border-radius: 8px;
   border: none;
   outline: none;
   background: #2b2b2b;
   color: #fff;
-  font-size: 14px;
+  font-size: clamp(0.85rem, 2vw, 14px);
   cursor: pointer;
   box-shadow: 0 0 8px rgba(0, 200, 255, 0.2);
   transition: 0.3s;
+  min-width: clamp(100px, 20vw, 140px);
 }
 .dropdown:hover {
   background: #3a3a3a;
@@ -80,7 +87,7 @@ body {
 /* Start Button */
 .start-btn {
   margin-left: auto;
-  padding: 10px 18px;
+  padding: clamp(8px, 2vw, 10px) clamp(14px, 3vw, 18px);
   background: #00c3ff;
   border: none;
   border-radius: 8px;
@@ -88,6 +95,8 @@ body {
   font-weight: bold;
   cursor: pointer;
   transition: 0.2s;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  white-space: nowrap;
 }
 .start-btn:hover {
   background: #009edb;
@@ -98,8 +107,8 @@ body {
   background: #0d1117;
   border: 1px solid #30363d;
   border-radius: 12px;
-  padding: 15px;
-  height: 350px;
+  padding: clamp(12px, 2.5vw, 15px);
+  height: clamp(250px, 50vh, 350px);
   overflow-y: auto;
   margin-top: 20px;
   margin-bottom: 20px;
@@ -109,42 +118,53 @@ body {
 .ai-msg {
   background: #1f2937;
   color: #f5f5f5;
-  padding: 10px 14px;
+  padding: clamp(8px, 2vw, 10px) clamp(10px, 2.5vw, 14px);
   border-radius: 10px;
   margin: 8px 0;
   max-width: 70%;
   animation: fadeIn 0.3s ease;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  line-height: 1.5;
+  word-wrap: break-word;
 }
 
 .user-msg {
   background: #00c3ff;
   color: #000;
-  padding: 10px 14px;
+  padding: clamp(8px, 2vw, 10px) clamp(10px, 2.5vw, 14px);
   border-radius: 10px;
   margin: 8px 0;
   margin-left: auto;
   max-width: 70%;
   animation: fadeIn 0.3s ease;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  line-height: 1.5;
+  word-wrap: break-word;
 }
 
 /* Input Box */
 .chat-input {
   display: flex;
-  gap: 10px;
+  gap: clamp(8px, 2vw, 10px);
+  flex-wrap: wrap;
 }
 
 textarea {
   flex: 1;
+  min-width: 200px;
   border-radius: 8px;
-  padding: 10px;
+  padding: clamp(8px, 2vw, 10px);
   background: #161b22;
   border: 1px solid #30363d;
   color: white;
-  resize: none;
+  resize: vertical;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  min-height: clamp(60px, 15vw, 75px);
 }
 
 button {
-  padding: 10px 18px;
+  padding: clamp(8px, 2vw, 10px) clamp(14px, 3vw, 18px);
   border: none;
   border-radius: 8px;
   background: #00c3ff;
@@ -152,14 +172,180 @@ button {
   font-weight: bold;
   cursor: pointer;
   transition: 0.2s;
+  font-size: clamp(0.85rem, 2vw, 1rem);
 }
 
 button:hover {
   background: #009edb;
 }
 
+button:active {
+  transform: scale(0.98);
+}
+
+/* Interview Summary */
+#interview-summary {
+  margin-top: 20px;
+  padding: clamp(12px, 2.5vw, 15px);
+  background: #1f2937;
+  border-radius: 12px;
+  border: 1px solid #30363d;
+}
+
+#interview-summary h2 {
+  color: #00c3ff;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  margin-bottom: 10px;
+}
+
+#summary-content {
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  line-height: 1.6;
+}
+
 /* Fade animation */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+
+/* Tablet and below (768px) */
+@media (max-width: 768px) {
+  .container {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .mock-settings {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mock-settings label {
+    margin-bottom: 5px;
+  }
+
+  .dropdown {
+    width: 100%;
+  }
+
+  .start-btn {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .chat-box {
+    height: 300px;
+  }
+
+  .ai-msg,
+  .user-msg {
+    max-width: 85%;
+  }
+
+  .chat-input {
+    flex-direction: column;
+  }
+
+  .chat-input button {
+    width: 100%;
+  }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+  .home-btn {
+    top: 10px;
+    left: 10px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  .container {
+    margin: 5px;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .chat-box {
+    height: 250px;
+    padding: 10px;
+  }
+
+  .ai-msg,
+  .user-msg {
+    max-width: 90%;
+    padding: 8px 10px;
+  }
+
+  textarea {
+    min-height: 60px;
+  }
+}
+
+/* Very small screens (360px and below) */
+@media (max-width: 360px) {
+  .home-btn {
+    font-size: 0.8rem;
+    padding: 5px 8px;
+  }
+
+  .page-title {
+    font-size: 1.3rem;
+  }
+
+  .chat-box {
+    height: 220px;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+  .container {
+    margin: 10px auto;
+  }
+
+  .chat-box {
+    height: 200px;
+  }
+
+  textarea {
+    min-height: 50px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .dropdown {
+    min-height: 44px;
+  }
+
+  button {
+    min-height: 44px;
+  }
+
+  .start-btn {
+    min-height: 44px;
+  }
+
+  button:hover {
+    background: #00c3ff;
+  }
+
+  button:active {
+    background: #009edb;
+  }
 }
