@@ -12,6 +12,13 @@ document.getElementById("planner-form").addEventListener("submit", async (e) => 
     return;
   }
 
+  // Show loading state
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Generating Plan...";
+  }
+
   try {
     const res = await fetch("/api/project-planner", {
       method: "POST",
@@ -89,19 +96,39 @@ document.getElementById("planner-form").addEventListener("submit", async (e) => 
 
     document.getElementById("suggestions").textContent = data.suggestions || "—";
 
+    // Scroll to results
+    document.getElementById("results").scrollIntoView({ behavior: "smooth" });
+
   } catch (err) {
     console.error("Planner fetch error:", err);
     alert("Failed to generate project plan. Check console for details.");
+  } finally {
+    // Reset button
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Generate Plan";
+    }
   }
 });
 
-// PDF download (basic)
+// PDF download (enhanced to include all sections)
 document.getElementById("download-plan").addEventListener("click", () => {
+  const resultsDiv = document.getElementById("results");
+  
+  if (resultsDiv.style.display === "none") {
+    alert("Please generate a project plan first!");
+    return;
+  }
+
   const content = document.getElementById("results").innerText;
+  const timestamp = new Date().toISOString().split('T')[0];
   const blob = new Blob([content], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "project_plan.txt"; // For now plain text, later we can add real PDF
+  a.download = `project_plan_${timestamp}.txt`;
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 });
