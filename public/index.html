@@ -5,8 +5,272 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>CareerCraft</title>
     <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      /* Login Modal Styles */
+      .login-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(8px);
+      }
+      
+      .login-modal.hidden {
+        display: none;
+      }
+      
+      .login-container {
+        width: 100%;
+        max-width: 440px;
+        padding: 32px;
+        background: var(--card);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        margin: 20px;
+      }
+      
+      .login-header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      
+      .login-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 8px 0;
+      }
+      
+      .login-header p {
+        font-size: 0.875rem;
+        color: var(--muted);
+        margin: 0;
+      }
+      
+      /* Tab Headers */
+      .tab-headers {
+        display: flex;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 24px;
+      }
+      
+      .tab-btn {
+        flex: 1;
+        padding: 12px;
+        font-weight: 600;
+        text-align: center;
+        color: var(--muted);
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: -2px;
+      }
+      
+      .tab-btn.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+      
+      /* Message Area */
+      .message-area {
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 0.875rem;
+        margin-bottom: 16px;
+        display: none;
+      }
+      
+      .message-area.success {
+        background: rgba(34, 197, 94, 0.2);
+        color: #86efac;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        display: block;
+      }
+      
+      .message-area.error {
+        background: rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        display: block;
+      }
+      
+      /* Tab Content */
+      .tab-content {
+        display: none;
+      }
+      
+      .tab-content.active {
+        display: block;
+      }
+      
+      /* Form Styles */
+      .form-group {
+        margin-bottom: 16px;
+      }
+      
+      .form-row {
+        display: flex;
+        gap: 12px;
+      }
+      
+      .form-row .form-group {
+        flex: 1;
+      }
+      
+      .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 6px;
+      }
+      
+      .form-group input {
+        width: 100%;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+        box-sizing: border-box;
+        font-family: 'Inter', sans-serif;
+      }
+      
+      .form-group input:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(0, 186, 242, 0.1);
+      }
+      
+      .form-group input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+      }
+      
+      .forgot-password {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: -8px;
+        margin-bottom: 16px;
+      }
+      
+      .forgot-password a {
+        color: var(--accent);
+        font-size: 0.875rem;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      
+      .forgot-password a:hover {
+        color: #4fd1c5;
+      }
+      
+      .submit-btn {
+        width: 100%;
+        padding: 12px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: 'Inter', sans-serif;
+      }
+      
+      .submit-btn:hover {
+        background: #0097d6;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 186, 242, 0.4);
+      }
+    </style>
   </head>
   <body data-theme="dark">
+    <!-- Login/Signup Modal -->
+    <div id="login-modal" class="login-modal">
+      <div class="login-container">
+        
+        <!-- Header -->
+        <div class="login-header">
+          <h1>CareerCraft</h1>
+          <p>Start your journey. Create an account to craft your career.</p>
+        </div>
+
+        <!-- Tab Headers -->
+        <div class="tab-headers">
+          <button id="login-tab-btn" class="tab-btn active" onclick="switchTab('login')">
+            Log In
+          </button>
+          <button id="signup-tab-btn" class="tab-btn" onclick="switchTab('signup')">
+            Sign Up
+          </button>
+        </div>
+
+        <!-- Message Area -->
+        <div id="message-area" class="message-area"></div>
+
+        <!-- Login Form -->
+        <div id="login-form" class="tab-content active">
+          <form id="login-form-element" onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label for="login-email">Email address</label>
+              <input id="login-email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div class="form-group">
+              <label for="login-password">Password</label>
+              <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+            </div>
+            <div class="forgot-password">
+              <a href="#">Forgot password?</a>
+            </div>
+            <button type="submit" class="submit-btn">Log In</button>
+          </form>
+        </div>
+
+        <!-- Sign Up Form -->
+        <div id="signup-form" class="tab-content">
+          <form id="signup-form-element" onsubmit="handleSignup(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="signup-firstname">First Name</label>
+                <input id="signup-firstname" name="firstName" type="text" required>
+              </div>
+              <div class="form-group">
+                <label for="signup-lastname">Last Name</label>
+                <input id="signup-lastname" name="lastName" type="text" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="signup-email">Email address</label>
+              <input id="signup-email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div class="form-group">
+              <label for="signup-password">Password</label>
+              <input id="signup-password" name="password" type="password" required>
+            </div>
+            <div class="form-group">
+              <label for="signup-confirm-password">Confirm Password</label>
+              <input id="signup-confirm-password" name="confirmPassword" type="password" required>
+            </div>
+            <button type="submit" class="submit-btn">Create Account</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <header class="hero">
       <h1>CareerCraft</h1>
       <p class="tagline">Your Future Starts Today.</p>
@@ -43,13 +307,6 @@
           <h3>Project Planner</h3>
           <p>Turn ideas into execution plans.</p>
         </a>
-        <!-- <a href="timeline.html" class="feature-card">
-          <div class="icon">
-            <img src="icons/timeline.png" alt="Timeline icon" />
-          </div>
-          <h3>Career Timeline</h3>
-          <p>Visual roadmap for your growth.</p>
-        </a> -->
         <a href="feedback.html" class="feature-card">
           <div class="icon">
             <img src="icons/feedback.png" alt="Feedback icon" />
@@ -64,6 +321,84 @@
       <p>© 2025 CareerCraft — Empowering Careers</p>
     </footer>
 
+    <script>
+      const loginTabBtn = document.getElementById('login-tab-btn');
+      const signupTabBtn = document.getElementById('signup-tab-btn');
+      const loginForm = document.getElementById('login-form');
+      const signupForm = document.getElementById('signup-form');
+      const messageArea = document.getElementById('message-area');
+
+      // Function to switch between Login and Sign Up tabs
+      function switchTab(tab) {
+        if (tab === 'login') {
+          loginForm.classList.add('active');
+          signupForm.classList.remove('active');
+          loginTabBtn.classList.add('active');
+          signupTabBtn.classList.remove('active');
+        } else {
+          loginForm.classList.remove('active');
+          signupForm.classList.add('active');
+          loginTabBtn.classList.remove('active');
+          signupTabBtn.classList.add('active');
+        }
+        messageArea.classList.remove('success', 'error');
+        messageArea.style.display = 'none';
+      }
+
+      // Function to display messages
+      function displayMessage(message, type) {
+        messageArea.textContent = message;
+        messageArea.className = 'message-area ' + type;
+      }
+
+      // Handle Login
+      function handleLogin(event) {
+        event.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        console.log('Login attempt with:', { email, password });
+        
+        // --- TODO: API INTEGRATION ---
+        // Replace with your actual API call
+        
+        // Mock Success
+        if (email === "test@example.com" && password === "password") {
+          displayMessage('Login successful! Redirecting...', 'success');
+          setTimeout(() => {
+            document.getElementById('login-modal').classList.add('hidden');
+          }, 1500);
+        } else {
+          displayMessage('Invalid credentials. Try test@example.com / password', 'error');
+        }
+      }
+
+      // Handle Sign Up
+      function handleSignup(event) {
+        event.preventDefault();
+        const firstName = document.getElementById('signup-firstname').value;
+        const lastName = document.getElementById('signup-lastname').value;
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+        const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+        if (password !== confirmPassword) {
+          displayMessage('Passwords do not match.', 'error');
+          return;
+        }
+
+        console.log('Sign Up attempt with:', { firstName, lastName, email, password });
+        
+        // --- TODO: API INTEGRATION ---
+        // Replace with your actual API call
+        
+        // Mock Success
+        displayMessage('Account created successfully! Please log in.', 'success');
+        setTimeout(() => {
+          switchTab('login');
+        }, 1500);
+      }
+    </script>
     <script src="script.js"></script>
   </body>
 </html>
