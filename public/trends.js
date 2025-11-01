@@ -39,8 +39,12 @@ searchBtn.addEventListener("click", async () => {
 
 function showLoadingState() {
   ["overview", "roadmap", "certifications", "jobs", "ai-advice", "news"]
-    .forEach(id => document.getElementById(id).innerHTML =
-      '<div class="loading-spinner">⏳ Loading...</div>');
+    .forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.innerHTML = '<div class="loading-spinner">⏳ Loading...</div>';
+      }
+    });
 }
 
 function populateResults(data) {
@@ -64,11 +68,18 @@ function populateResults(data) {
 
 function createSkillsChart(skills) {
   const canvas = document.getElementById("skillsChart");
+  if (!canvas) {
+    console.warn("Skills chart canvas not found");
+    return;
+  }
+  
   const ctx = canvas.getContext("2d");
 
   if (skillsChart) skillsChart.destroy();
 
   if (!skills || !skills.length) {
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
     ctx.fillText("No skills data available", canvas.width/2, canvas.height/2);
     return;
   }
@@ -77,8 +88,35 @@ function createSkillsChart(skills) {
     type: "bar",
     data: {
       labels: skills.map(s => s.name),
-      datasets: [{ label: "Demand (%)", data: skills.map(s => s.demand), backgroundColor: "#00c3ff" }]
+      datasets: [{
+        label: "Demand (%)",
+        data: skills.map(s => s.demand),
+        backgroundColor: "#00c3ff",
+        borderColor: "#0099cc",
+        borderWidth: 1
+      }]
     },
-    options: { scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { color: "#ffffff" },
+          grid: { color: "rgba(255,255,255,0.1)" }
+        },
+        x: {
+          ticks: { color: "#ffffff" },
+          grid: { color: "rgba(255,255,255,0.1)" }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true,
+          labels: { color: "#ffffff" }
+        }
+      }
+    }
   });
 }
