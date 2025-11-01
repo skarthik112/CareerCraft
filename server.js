@@ -9,12 +9,9 @@ const OpenAI = require("openai");
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
-import { fileURLToPath } from "url";
+
 const app = express();
 app.use(cors());
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -632,50 +629,6 @@ app.post("/api/feedback", async (req, res) => {
   }
 });
 
-function createProjectPlannerFallback(idea, domain, duration, teamSize, complexity) {
-  const template = {
-    requirements: ["Requirement 1", "Requirement 2", "Requirement 3"],
-    risks: ["Risk 1", "Risk 2", "Risk 3"],
-    tools: "Git, Docker, Node.js"
-  };
-  return {
-    overview: `A ${complexity} ${domain} project: ${idea}`,
-    requirements: template.requirements,
-    roadmap: [
-      "Define scope",
-      "Set up environment",
-      "Develop core features",
-      "Testing & QA",
-      "Deployment",
-      "Documentation"
-    ],
-    roles: [
-      { role: "Developer", responsibilities: ["Code", "Test", "Deploy"] }
-    ],
-    timeline: [
-      { milestone: "Planning", time: "1 week" },
-      { milestone: "Development", time: "3 weeks" }
-    ],
-    deliverables: ["Source code", "Documentation"],
-    risks: template.risks,
-    suggestions: `Recommended tools: ${template.tools}`
-  };
-}
-
-function validateProjectPlanResponse(data, idea, domain, duration, teamSize, complexity) {
-  const fallback = createProjectPlannerFallback(idea, domain, duration, teamSize, complexity);
-  return {
-    overview: data.overview || fallback.overview,
-    requirements: Array.isArray(data.requirements) ? data.requirements : fallback.requirements,
-    roadmap: Array.isArray(data.roadmap) ? data.roadmap : fallback.roadmap,
-    roles: Array.isArray(data.roles) ? data.roles : fallback.roles,
-    timeline: Array.isArray(data.timeline) ? data.timeline : fallback.timeline,
-    deliverables: Array.isArray(data.deliverables) ? data.deliverables : fallback.deliverables,
-    risks: Array.isArray(data.risks) ? data.risks : fallback.risks,
-    suggestions: data.suggestions || fallback.suggestions
-  };
-}
-
 // -------------------
 // ✅ Project Planner API using OpenAI with Enhanced Fallback
 // -------------------
@@ -771,12 +724,10 @@ Focus especially on including the full recommended technology stack (front-end, 
     console.error("OpenAI Project Planner error:", error);
     
     // Handle specific OpenAI errors
-    let shouldUseFallback = true;
     let errorType = "unknown";
     
     if (error.response) {
       const status = error.response.status;
-      const errorMessage = error.response.data?.error?.message || error.message;
       
       if (status === 429) {
         errorType = "quota_exceeded";
@@ -808,7 +759,7 @@ Focus especially on including the full recommended technology stack (front-end, 
 });
 
 // -------------------
-// 🔧 Enhanced Fallback Function
+// 🔧 Enhanced Fallback Function (ONLY ONE - NO DUPLICATES)
 // -------------------
 function createProjectPlannerFallback(idea, domain, duration, teamSize, complexity) {
   const durationWeeks = parseInt(duration);
@@ -981,12 +932,12 @@ function createProjectPlannerFallback(idea, domain, duration, teamSize, complexi
       "Security vulnerabilities - Mitigation: Security audits and best practices"
     ],
     
-    suggestions: `For ${idea}, focus on: 1) ${isComplex ? 'Building a scalable microservices architecture' : 'Creating a solid MVP first'}, 2) Implementing ${Object.values(selectedTech)[0]?.[0] || 'modern technologies'} with best practices, 3) Regular code reviews and testing, 4) ${isLargeTeam ? 'Clear role distribution and communication channels' : 'Pair programming and knowledge sharing'}, 5) Continuous deployment and monitoring. ${domain === "Web Development" ? 'Consider using Next.js for SSR, implement SEO best practices, and ensure mobile responsiveness.' : domain === "Mobile App" ? 'Focus on native performance, offline capabilities, and app store optimization.' : domain === "Data Science" || domain === "Machine Learning" ? 'Emphasize data quality, model validation, and explainability.' : 'Follow industry-standard practices and security guidelines.'} Start with a proof of concept, iterate based on feedback, and maintain comprehensive documentation throughout the project lifecycle.`
+    suggestions: `For ${idea}, focus on:\n\n1) ${isComplex ? 'Building a scalable microservices architecture' : 'Creating a solid MVP first'}\n\n2) Implementing ${Object.values(selectedTech)[0]?.[0] || 'modern technologies'} with best practices\n\n3) Regular code reviews and testing\n\n4) ${isLargeTeam ? 'Clear role distribution and communication channels' : 'Pair programming and knowledge sharing'}\n\n5) Continuous deployment and monitoring\n\n${domain === "Web Development" ? 'Consider using Next.js for SSR, implement SEO best practices, and ensure mobile responsiveness.' : domain === "Mobile App" ? 'Focus on native performance, offline capabilities, and app store optimization.' : domain === "Data Science" || domain === "Machine Learning" ? 'Emphasize data quality, model validation, and explainability.' : 'Follow industry-standard practices and security guidelines.'}\n\nStart with a proof of concept, iterate based on feedback, and maintain comprehensive documentation throughout the project lifecycle.`
   };
 }
 
 // -------------------
-// 🔧 Validation Function (Keep existing one or use this enhanced version)
+// 🔧 Validation Function (ONLY ONE - NO DUPLICATES)
 // -------------------
 function validateProjectPlanResponse(parsed, idea, domain, duration, teamSize, complexity) {
   const fallback = createProjectPlannerFallback(idea, domain, duration, teamSize, complexity);
@@ -1014,12 +965,15 @@ function validateProjectPlanResponse(parsed, idea, domain, duration, teamSize, c
     suggestions: parsed.suggestions || fallback.suggestions
   };
 }
-app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
 
-// ✅ Use Render’s dynamic port and 0.0.0.0 host
+// -------------------
+// Catch-all route
+// -------------------
+app.get(/.*/, (req, res) =>
+  res.sendFile(path.join(__dirname, "public/index.html"))
+);
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Server running with Gemini 2.5 on port ${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log(`✅ Server running with Gemini 2.5 at http://localhost:${PORT}`)
+);
