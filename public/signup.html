@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - CareerCraft</title>
+    
+    <!-- 
+      FIX 1: Define Tailwind config before loading the script.
+      The Tailwind CDN script looks for a 'window.tailwind.config' object.
+      This fixes the 'tailwind is not defined' error.
+    -->
+    <script>
+        window.tailwind = {
+            config: {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Inter', 'sans-serif'],
+                        },
+                        colors: {
+                            brand: {
+                                50: '#eff6ff',
+                                100: '#dbeafe',
+                                200: '#bfdbfe',
+                                300: '#93c5fd',
+                                400: '#60a5fa',
+                                500: '#3b82f6',
+                                600: '#2563eb',
+                                700: '#1d4ed8',
+                                800: '#1e40af',
+                                900: '#1e3a8a',
+                                950: '#172554',
+                            },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Lucide icons - Corrected from lucide-react to lucide -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        /* Using Inter font as a modern default */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style for valid/invalid constraints */
+        .constraint-valid {
+            color: #22c55e; /* text-green-500 */
+        }
+        .constraint-invalid {
+            color: #a1a1aa; /* text-zinc-400 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white antialiased">
+
+    <div class="flex min-h-screen flex-col items-center justify-center px-4 py-12">
+        <div class="w-full max-w-md">
+            <!-- Logo and App Name -->
+            <div class="mb-8 flex flex-col items-center">
+                <div class="mb-0 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-600 text-white">
+                    <svg data-lucide="graduation-cap" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.084a1 1 0 0 0 0 1.838l8.57 3.908a2 2 0 0 0 1.66 0l8.59-3.908Z"/><path d="M6 12v4c0 4.5 3 5 6 5s6-1.5 6-5v-4"/><path d="M12 19v-5"/></svg>
+                </div>
+                <h1 class="text-3xl font-bold text-white">Create your account</h1>
+                <p class="text-gray-400">Join CareerCraft to start your journey.</p>
+            </div>
+
+            <!-- Sign Up Form -->
+            <form class="space-y-6" onsubmit="handleSignUp(event)">
+                <!-- Full Name -->
+                <div>
+                    <label for="fullname" class="block text-sm font-medium text-gray-300">Full name</label>
+                    <div class="mt-2">
+                        <input id="fullname" name="fullname" type="text" autocomplete="name" required
+                            class="block w-full rounded-lg border-0 bg-white/5 py-2.5 px-4 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:text-sm sm:leading-6"
+                            placeholder="Jane Doe">
+                    </div>
+                </div>
+
+                <!-- Email Input -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-300">Email address</label>
+                    <div class="mt-2">
+                        <input id="email" name="email" type="email" autocomplete="email" required
+                            class="block w-full rounded-lg border-0 bg-white/5 py-2.5 px-4 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:text-sm sm:leading-6"
+                            placeholder="you@example.com">
+                    </div>
+                </div>
+
+                <!-- Password Input -->
+                <div>
+                    <label for="password-signup" class="block text-sm font-medium text-gray-300">Password</label>
+                    <div class="mt-2">
+                        <input id="password-signup" name="password" type="password" autocomplete="new-password" required
+                            oninput="validatePassword()"
+                            class="block w-full rounded-lg border-0 bg-white/5 py-2.5 px-4 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:text-sm sm:leading-6"
+                            placeholder="••••••••">
+                    </div>
+                </div>
+
+                <!-- Password Constraints -->
+                <ul id="password-constraints" class="space-y-1.5 pl-2 text-sm">
+                    <li id="constraint-length" class="flex items-center constraint-invalid">
+                        <svg data-lucide="circle-dashed" class="mr-2 h-4 w-4 flex-shrink-0" stroke-width="2.5"></svg>
+                        At least 8 characters
+                    </li>
+                    <li id="constraint-uppercase" class="flex items-center constraint-invalid">
+                        <svg data-lucide="circle-dashed" class="mr-2 h-4 w-4 flex-shrink-0" stroke-width="2.5"></svg>
+                        One uppercase letter (A-Z)
+                    </li>
+                    <li id="constraint-lowercase" class="flex items-center constraint-invalid">
+                        <svg data-lucide="circle-dashed" class="mr-2 h-4 w-4 flex-shrink-0" stroke-width="2.5"></svg>
+                        One lowercase letter (a-z)
+                    </li>
+                    <li id="constraint-number" class="flex items-center constraint-invalid">
+                        <svg data-lucide="circle-dashed" class="mr-2 h-4 w-4 flex-shrink-0" stroke-width="2.5"></svg>
+                        One number (0-9)
+                    </li>
+                    <li id="constraint-special" class="flex items-center constraint-invalid">
+                        <svg data-lucide="circle-dashed" class="mr-2 h-4 w-4 flex-shrink-0" stroke-width="2.5"></svg>
+                        One special character (e.g., !@#$)
+                    </li>
+                </ul>
+
+                <!-- Confirm Password Input -->
+                <div>
+                    <label for="confirm-password" class="block text-sm font-medium text-gray-300">Confirm password</label>
+                    <div class="mt-2">
+                        <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" required
+                            class="block w-full rounded-lg border-0 bg-white/5 py-2.5 px-4 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:text-sm sm:leading-6"
+                            placeholder="••••••••">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    <!-- MODIFIED: Changed styles to match transparent buttons -->
+                    <button type="submit"
+                        class="flex w-full justify-center rounded-lg border border-white/50 bg-transparent px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 transition-colors duration-200">
+                        Create account
+                    </button>
+                </div>
+            </form>
+
+            <!-- Sign In Link -->
+            <p class="mt-5 text-center text-sm text-gray-400">
+                Already a member?
+                <a href="login.html" class="font-semibold leading-6 text-brand-400 hover:text-brand-300">
+                    Sign in
+                </a>
+            </p>
+            
+            <!-- Message Box -->
+            <div id="message-box" class="mt-4 hidden rounded-lg p-4 text-center text-sm"></div>
+        </div>
+    </div>
+
+    <script>
+        /*
+          FIX 2: Use 'window.addEventListener("load", ...)' instead of 'DOMContentLoaded'.
+          'load' waits for ALL resources (like the Lucide script) to be fully downloaded
+          and executed, not just the HTML. This fixes the 'lucide is not defined' error.
+        */
+        window.addEventListener("load", () => {
+            const constraints = {
+                length: document.getElementById('constraint-length'),
+                uppercase: document.getElementById('constraint-uppercase'),
+                lowercase: document.getElementById('constraint-lowercase'),
+                number: document.getElementById('constraint-number'),
+                special: document.getElementById('constraint-special'),
+            };
+
+            // Helper to update the UI for a constraint
+            function updateConstraint(id, isValid) {
+                const el = constraints[id];
+                if (!el) return; // Guard against element not found
+                const icon = el.querySelector('svg');
+                if (!icon) return; // Guard against icon not found
+
+                if (isValid) {
+                    el.classList.add('constraint-valid');
+                    el.classList.remove('constraint-invalid');
+                    icon.setAttribute('data-lucide', 'check-circle');
+                } else {
+                    el.classList.remove('constraint-valid');
+                    el.classList.add('constraint-invalid');
+                    icon.setAttribute('data-lucide', 'circle-dashed');
+                }
+            }
+
+            // Main validation function
+            // Attach to window to be accessible from oninput
+            window.validatePassword = function() {
+                const password = document.getElementById('password-signup').value;
+                
+                const checks = {
+                    length: password.length >= 8,
+                    uppercase: /[A-Z]/.test(password),
+                    lowercase: /[a-z]/.test(password),
+                    number: /[0-9]/.test(password),
+                    special: /[^A-Za-z0-9]/.test(password)
+                };
+
+                updateConstraint('length', checks.length);
+                updateConstraint('uppercase', checks.uppercase);
+                updateConstraint('lowercase', checks.lowercase);
+                updateConstraint('number', checks.number);
+                updateConstraint('special', checks.special);
+
+                // Re-render icons
+                // Check if lucide is available before calling it
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+                
+                // Return true if all checks are valid
+                return Object.values(checks).every(Boolean);
+            }
+
+            function showMessage(message, type = 'error') {
+                const messageBox = document.getElementById('message-box');
+                messageBox.textContent = message;
+                messageBox.classList.remove('hidden');
+                
+                if (type === 'error') {
+                    messageBox.classList.add('bg-red-800', 'text-red-100');
+                    messageBox.classList.remove('bg-green-800', 'text-green-100');
+                } else {
+                    messageBox.classList.remove('bg-red-800', 'text-red-100');
+                    messageBox.classList.add('bg-green-800', 'text-green-100');
+                }
+            }
+
+            // Attach to window to be accessible from onsubmit
+            window.handleSignUp = function(event) {
+                event.preventDefault();
+                
+                const password = document.getElementById('password-signup').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                
+                // 1. Run final validation
+                const allValid = window.validatePassword();
+                
+                // 2. Check if passwords match
+                if (password !== confirmPassword) {
+                    showMessage('Passwords do not match. Please try again.', 'error');
+                    return;
+                }
+                
+                // 3. Check if all constraints are met
+                if (!allValid) {
+                    showMessage('Please meet all password requirements.', 'error');
+                    return;
+                }
+                
+                // 4. Success (simulate)
+                showMessage('Account created successfully! Redirecting to login...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }
+
+            // Initialize Lucide icons on load
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            } else {
+                console.error("Lucide script still not loaded (this shouldn't happen on 'load' event).");
+            }
+        });
+    </script>
+</body>
+</html>
