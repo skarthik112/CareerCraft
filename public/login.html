@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - CareerCraft</title>
+    
+    <!-- Define Tailwind config before loading the script -->
+    <script>
+        window.tailwind = {
+            config: {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Inter', 'sans-serif'],
+                        },
+                        colors: {
+                            brand: {
+                                50: '#eff6ff',
+                                100: '#dbeafe',
+                                200: '#bfdbfe',
+                                300: '#93c5fd',
+                                400: '#60a5fa',
+                                500: '#3b82f6',
+                                600: '#2563eb',
+                                700: '#1d4ed8',
+                                800: '#1e40af',
+                                900: '#1e3a8a',
+                                950: '#172554',
+                            },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Lucide icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        /* Using Inter font as a modern default */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* NEW: Style for valid/invalid constraints */
+        .constraint-valid {
+            color: #22c55e; /* text-green-500 */
+        }
+        .constraint-invalid {
+            color: #a1a1aa; /* text-zinc-400 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white antialiased">
+
+    <div class="flex min-h-screen flex-col items-center justify-center px-4 py-12">
+        <div class="w-full max-w-md">
+            
+            <!-- Logo and App Name (Shared) -->
+            <div class="mb-8 flex flex-col items-center">
+                <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-600 text-white">
+                    <svg data-lucide="graduation-cap" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.084a1 1 0 0 0 0 1.838l8.57 3.908a2 2 0 0 0 1.66 0l8.59-3.908Z"/><path d="M6 12v4c0 4.5 3 5 6 5s6-1.5 6-5v-4"/><path d="M12 19v-5"/></svg>
+                </div>
+                <h1 id="form-title" class="text-3xl font-bold text-white">Sign In to your account</h1>
+                <!-- FIXED: Corrected class.=" to class=" -->
+                <p id="form-subtitle" class="text-gray-400">Welcome back to CareerCraft.</p>
+            </div>
+
+            <!-- Container for all forms -->
+            <div class="relative">
+
+                <!-- Step 1: Email & Password Form -->
+                <form id="login-form" class="space-y-6" onsubmit="handleLoginSubmit(event)">
+                    <!-- Email Input -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-300">Email address</label>
+                        <div class="mt-2">
+                            <input id="email" name="email" type="email" autocomplete="email" required
+                                class="block w-full rounded-lg border-0 bg-white/5 py-2.5 px-4 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:text-sm sm:leading-6"
+                                placeholder="you@example.com">
+                        </div>
+                    </div>
+
+                    <!-- Password Input -->
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <label for="password" class="block text-sm font-medium text-gray-300">Password</label>
+                            <!-- NEW: Forgot Password Link -->
+                            <div class="text-sm">
+                                <a href="#" onclick="showForm('forgot-password-form')" class="font-semibold text-brand-400 hover:text-brand-300">
+                                    Forgot password?
+                                </a>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <input id="password" name="password" type="password" autocomplete="current-password" required
+                                class="block w-full rounded-lg border-0 bg-white/5 py-2.5 px-4 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:text-sm sm:leading-6"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <!-- MODIFIED: Button text changed to "Sign In" -->
+                        <button type="submit"
+                            class="flex w-full justify-center rounded-lg border border-white/50 bg-transparent px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 transition-colors duration-200">
+                            Sign In
+                        </button>
+                    </div>
+                </form>
+
+                <!-- NEW: Step 2a: Forgot Password Form -->
+                <form id="forgot-password-form" class="space-y-6 hidden" onsubmit="handleForgotPasswordSubmit(event)">
+                    <div>
+                        <label for="reset-email" class="block text-sm font-medium text-gray-300">Email address</label>
+                        <div class="mt-2">
+                            <input id="reset-email" name="reset-email" type="email" autocomplete="email" required
+                                class="block w-full rounded-lg border-0 bg-white/5 py-2.5 px-4 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:text-sm sm:leading-6"
+                                placeholder="Enter your email to get an OTP">
+                        </div>
+                    </div>
+                    <div>
+                        <button type="submit"
+                            class="flex w-full justify-center rounded-lg border border-white/50 bg-transparent px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 transition-colors duration-200">
+                            Send Reset OTP
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Step 2b / 3a: OTP Form (Shared) -->
+                <form id="otp-form" class="space-y-6 hidden" onsubmit="handleOtpSubmit(event)">
+                    <div class="text-center text-sm text-gray-300">
+                        We've sent a 6-digit OTP to
+                        <br>
+                        <strong id="user-email-display" class="font-medium text-white"></strong>
+                    </div>
+
+                    <!-- OTP Input -->
+                    <div>
+                        <label for="otp" class="block text-sm font-medium text-gray-300">Enter OTP</label>
+                        <div class="mt-2">
+                            <input id="otp" name="otp" type="text" inputmode="numeric" maxlength="6" required
+                                class="block w-full rounded-lg border-0 bg-white/5 py-2.5 px-4 text-white text-center text-2xl tracking-[0.5em] shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:leading-6"
+                                placeholder="_ _ _ _ _ _">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div>
+                        <button type="submit"
+                            class="flex w-full justify-center rounded-lg border border-white/50 bg-transparent px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 transition-colors duration-200">
+                            Verify
+                        </button>
+                    </div>
+                </form>
+
+                <!-- NEW: Step 3b: New Password Form -->
+                <form id="new-password-form" class="space-y-6 hidden" onsubmit="handleNewPasswordSubmit(event)">
+                    <!-- New Password -->
+                    <div>
+                        <label for="new-password" class="block text-sm font-medium text-gray-300">New Password</label>
+                        <div class="mt-2">
+                            <!-- MODIFIED: Added oninput listener -->
+                            <input id="new-password" name="new-password" type="password" required oninput="validateNewPassword()"
+                                class="block w-full rounded-lg border-0 bg-white/5 py-2.5 px-4 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:text-sm sm:leading-6"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <!-- NEW: Password Constraints List -->
+                    <ul id="password-constraints" class="space-y-1.5 pl-2 text-sm">
+                        <li id="constraint-length" class="flex items-center constraint-invalid">
+                            <svg data-lucide="circle-dashed" class="mr-2 h-4 w-4 flex-shrink-0" stroke-width="2.5"></svg>
+                            At least 8 characters
+                        </li>
+                        <li id="constraint-uppercase" class="flex items-center constraint-invalid">
+                            <svg data-lucide="circle-dashed" class="mr-2 h-4 w-4 flex-shrink-0" stroke-width="2.5"></svg>
+                            One uppercase letter (A-Z)
+                        </li>
+                        <li id="constraint-lowercase" class="flex items-center constraint-invalid">
+                            <svg data-lucide="circle-dashed" class="mr-2 h-4 w-4 flex-shrink-0" stroke-width="2.5"></svg>
+                            One lowercase letter (a-z)
+                        </li>
+                        <li id="constraint-number" class="flex items-center constraint-invalid">
+                            <svg data-lucide="circle-dashed" class="mr-2 h-4 w-4 flex-shrink-0" stroke-width="2.5"></svg>
+                            One number (0-9)
+                        </li>
+                        <li id="constraint-special" class="flex items-center constraint-invalid">
+                            <svg data-lucide="circle-dashed" class="mr-2 h-4 w-4 flex-shrink-0" stroke-width="2.5"></svg>
+                            One special character (e.g., !@#$)
+                        </li>
+                    </ul>
+
+                    <!-- Confirm New Password -->
+                    <div>
+                        <label for="confirm-new-password" class="block text-sm font-medium text-gray-300">Confirm New Password</label>
+                        <div class="mt-2">
+                            <input id="confirm-new-password" name="confirm-new-password" type="password" required
+                                class="block w-full rounded-lg border-0 bg-white/5 py-2.5 px-4 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-brand-500 sm:text-sm sm:leading-6"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+                    <!-- Submit Button -->
+                    <div>
+                        <button type="submit"
+                            class="flex w-full justify-center rounded-lg border border-white/50 bg-transparent px-3 py-2.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 transition-colors duration-200">
+                            Set New Password
+                        </button>
+                    </div>
+                </form>
+
+            </div> <!-- End Form Container -->
+
+            <!-- Sign Up / Back to Sign In Link -->
+            <p id="auth-switch" class="mt-10 text-center text-sm text-gray-400">
+                Don't have an account?
+                <a href="signup.html" class="font-semibold leading-6 text-brand-400 hover:text-brand-300">
+                    Sign up for free
+                </a>
+            </p>
+            
+            <!-- Message Box -->
+            <div id="message-box" class="mt-4 hidden rounded-lg p-4 text-center text-sm"></div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener("load", () => {
+            // Form Elements
+            const loginForm = document.getElementById('login-form');
+            const otpForm = document.getElementById('otp-form');
+            const forgotPasswordForm = document.getElementById('forgot-password-form');
+            const newPasswordForm = document.getElementById('new-password-form');
+            const allForms = [loginForm, otpForm, forgotPasswordForm, newPasswordForm];
+
+            // Form Title Elements
+            const formTitle = document.getElementById('form-title');
+            const formSubtitle = document.getElementById('form-subtitle');
+            const authSwitch = document.getElementById('auth-switch');
+
+            // Input Elements
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const resetEmailInput = document.getElementById('reset-email');
+            const otpInput = document.getElementById('otp');
+            const newPasswordInput = document.getElementById('new-password');
+            const confirmNewPasswordInput = document.getElementById('confirm-new-password');
+
+            // Display Elements
+            const messageBox = document.getElementById('message-box');
+            const userEmailDisplay = document.getElementById('user-email-display');
+            
+            // NEW: Constraint Elements
+            const constraints = {
+                length: document.getElementById('constraint-length'),
+                uppercase: document.getElementById('constraint-uppercase'),
+                lowercase: document.getElementById('constraint-lowercase'),
+                number: document.getElementById('constraint-number'),
+                special: document.getElementById('constraint-special'),
+            };
+
+            // State
+            let authMode = 'login'; // 'login' or 'reset'
+            let userEmail = ''; // Store the email for the session
+
+            // --- Helper to switch between forms ---
+            window.showForm = function(formId) {
+                // Hide all forms
+                allForms.forEach(form => form.classList.add('hidden'));
+                
+                // Show the target form
+                const targetForm = document.getElementById(formId);
+                if (targetForm) {
+                    targetForm.classList.remove('hidden');
+                }
+                
+                // Clear messages
+                messageBox.classList.add('hidden');
+                messageBox.textContent = '';
+
+                // Update titles and auth switch link
+                switch (formId) {
+                    case 'login-form':
+                        formTitle.textContent = 'Sign In to your account';
+                        formSubtitle.textContent = 'Welcome back to CareerCraft.';
+                        authSwitch.innerHTML = 'Don\'t have an account? <a href="signup.html" class="font-semibold leading-6 text-brand-400 hover:text-brand-300">Sign up for free</a>';
+                        authMode = 'login';
+                        break;
+                    case 'forgot-password-form':
+                        formTitle.textContent = 'Forgot Password';
+                        formSubtitle.textContent = 'Enter your email to get a reset OTP.';
+                        authSwitch.innerHTML = <a href="#" onclick="showForm('login-form')" class="font-semibold leading-6 text-brand-400 hover:text-brand-300">Back to Sign In</a>;
+                        authMode = 'reset';
+                        break;
+                    case 'otp-form':
+                        formTitle.textContent = 'Check Your Email';
+                        formSubtitle.textContent = 'We\'ve sent an OTP to your email.';
+                        authSwitch.innerHTML = <a href="#" onclick="showForm('login-form')" class="font-semibold leading-6 text-brand-400 hover:text-brand-300">Back to Sign In</a>;
+                        userEmailDisplay.textContent = userEmail;
+                        otpInput.focus();
+                        break;
+                    case 'new-password-form':
+                        formTitle.textContent = 'Set New Password';
+                        formSubtitle.textContent = 'Create a new password for your account.';
+                        authSwitch.innerHTML = <a href="#" onclick="showForm('login-form')" class="font-semibold leading-6 text-brand-400 hover:text-brand-300">Back to Sign In</a>;
+                        authMode = 'reset';
+                        window.validateNewPassword(); // Reset/show constraints
+                        break;
+                }
+            }
+            
+            // --- Helper to validate email format ---
+            function validateEmail(email) {
+                const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                return re.test(String(email).toLowerCase());
+            }
+
+            // --- Helper to show messages ---
+            function showMessage(message, type = 'error') {
+                messageBox.textContent = message;
+                messageBox.classList.remove('hidden', 'bg-red-800', 'text-red-100', 'bg-green-800', 'text-green-100', 'bg-blue-800', 'text-blue-100');
+                
+                if (type === 'error') {
+                    messageBox.classList.add('bg-red-800', 'text-red-100');
+                } else if (type === 'success') {
+                    messageBox.classList.add('bg-green-800', 'text-green-100');
+                } else if (type === 'loading') {
+                     messageBox.classList.add('bg-blue-800', 'text-blue-100');
+                }
+            }
+            
+            // --- NEW: Helper to update constraint UI ---
+            function updateConstraint(id, isValid) {
+                const el = constraints[id];
+                if (!el) return;
+                const icon = el.querySelector('svg');
+                if (!icon) return;
+
+                if (isValid) {
+                    el.classList.add('constraint-valid');
+                    el.classList.remove('constraint-invalid');
+                    icon.setAttribute('data-lucide', 'check-circle');
+                } else {
+                    el.classList.remove('constraint-valid');
+                    el.classList.add('constraint-invalid');
+                    icon.setAttribute('data-lucide', 'circle-dashed');
+                }
+            }
+            
+            // --- NEW: Helper to validate new password constraints ---
+            window.validateNewPassword = function() {
+                const password = newPasswordInput.value;
+                
+                const checks = {
+                    length: password.length >= 8,
+                    uppercase: /[A-Z]/.test(password),
+                    lowercase: /[a-z]/.test(password),
+                    number: /[0-9]/.test(password),
+                    special: /[^A-Za-z0-9]/.test(password)
+                };
+
+                updateConstraint('length', checks.length);
+                updateConstraint('uppercase', checks.uppercase);
+                updateConstraint('lowercase', checks.lowercase);
+                updateConstraint('number', checks.number);
+                updateConstraint('special', checks.special);
+
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+                
+                return Object.values(checks).every(Boolean);
+            }
+
+            // --- Step 1: Handle Email & Password Submission ---
+            window.handleLoginSubmit = function(event) {
+                event.preventDefault();
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                authMode = 'login';
+
+                if (!validateEmail(email)) {
+                    showMessage('Please enter a valid email address.', 'error');
+                    return;
+                }
+
+                // SIMULATED: Constraint check for password
+                if (password !== 'password123') {
+                    showMessage('Incorrect email or password. Please try again.', 'error');
+                    return;
+                }
+
+                // MODIFIED: Login is correct, go straight to dashboard
+                showMessage('Login successful! Redirecting to dashboard...', 'success');
+                userEmail = email; // Store email
+                
+                setTimeout(() => {
+                    // MODIFIED: Redirect to dashboard
+                    window.location.href = 'dashboard.html'; 
+                }, 1500);
+            }
+
+            // --- Handle Forgot Password Email Submission ---
+            window.handleForgotPasswordSubmit = function(event) {
+                event.preventDefault();
+                const email = resetEmailInput.value;
+                authMode = 'reset';
+
+                if (!validateEmail(email)) {
+                    showMessage('Please enter a valid email address.', 'error');
+                    return;
+                }
+                
+                showMessage('Sending reset OTP...', 'loading');
+                userEmail = email; // Store email
+                
+                setTimeout(() => {
+                    showMessage('Reset OTP sent successfully! Check your inbox.', 'success');
+                    showForm('otp-form');
+                }, 1500);
+            }
+
+            // --- Handle OTP Submission (Now only for password reset) ---
+            window.handleOtpSubmit = function(event) {
+                event.preventDefault();
+                const otp = otpInput.value;
+
+                if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+                    showMessage('Please enter a valid 6-digit OTP.', 'error');
+                    return;
+                }
+
+                // SIMULATED: OTP verification
+                if (otp === '123456') {
+                    // MODIFIED: Removed 'login' branch, only 'reset' flow remains
+                    showMessage('OTP verified! Please set your new password.', 'success');
+                    showForm('new-password-form');
+                } else {
+                    showMessage('Invalid OTP. Please try again.', 'error');
+                }
+            }
+
+            // --- Handle New Password Submission ---
+            window.handleNewPasswordSubmit = function(event) {
+                event.preventDefault();
+                
+                // MODIFIED: Run validation first
+                const allValid = window.validateNewPassword();
+                
+                if (!allValid) {
+                    showMessage('Please meet all password requirements.', 'error');
+                    return;
+                }
+
+                const newPassword = newPasswordInput.value;
+                const confirmPassword = confirmNewPasswordInput.value;
+
+                if (newPassword !== confirmPassword) {
+                    showMessage('Passwords do not match. Please try again.', 'error');
+                    return;
+                }
+                
+                // SIMULATED: Password reset success
+                showMessage('Password reset successfully! Please sign in.', 'success');
+                
+                // Clear fields and go back to login
+                newPasswordInput.value = '';
+                confirmNewPasswordInput.value = '';
+                emailInput.value = userEmail; // Pre-fill email
+                passwordInput.value = '';
+                
+                setTimeout(() => {
+                    showForm('login-form');
+                }, 2000);
+            }
+
+            // Initialize Lucide icons on load
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>
