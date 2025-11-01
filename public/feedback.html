@@ -5,32 +5,449 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Feedback & Suggestions</title>
   <link rel="stylesheet" href="styles.css">
+  <!-- <link rel="stylesheet" href="feedback.css"> -->
   <script defer src="feedback.js"></script>
 
   <style>
     /* 🏠 Home button styling */
-    .home-btn {
-      position: fixed;       /* stays at top-left */
-      top: 20px;
-      left: 20px;
-      z-index: 1000;
-      display: inline-block;
-      margin: 15px 25px;
-      padding: 8px 14px;
-      background: #1e1e1e;
-      border-radius: 6px;
-      color: #ccc;
-      text-decoration: none;
-      transition: 0.2s;
-    }
-    .home-btn:hover {
-      background: #333;
-      color: #fff;
-    }
+.home-btn {
+  position: fixed;
+  top: clamp(10px, 2.5vw, 20px);
+  left: clamp(10px, 2.5vw, 20px);
+  z-index: 1000;
+  display: inline-block;
+  margin: 0;
+  padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2vw, 14px);
+  background: #1e1e1e;
+  border-radius: 6px;
+  color: #ccc;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  white-space: nowrap;
+}
+
+.home-btn:hover {
+  background: #333;
+  color: #fff;
+}
+
+/* Container */
+body {
+  padding: 0 clamp(10px, 3vw, 20px);
+  box-sizing: border-box;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  margin: clamp(40px, 8vw, 60px) auto;
+  padding: clamp(14px, 3vw, 20px);
+  color: #fff;
+  background: #1a1a1a;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  text-align: center;
+  word-wrap: break-word;
+  line-height: 1.3;
+  margin-bottom: clamp(15px, 3vw, 20px);
+}
+
+.card {
+  margin: clamp(10px, 2.5vw, 15px) 0;
+  padding: clamp(10px, 2.5vw, 12px);
+  background: #2a2a2a;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.card h3 {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  margin-bottom: 8px;
+}
+
+/* ⭐ Stars */
+.star-rating .star {
+  font-size: clamp(24px, 5vw, 28px);
+  cursor: pointer;
+  margin: clamp(2px, 1vw, 3px);
+  color: #888;
+  transition: color 0.2s, transform 0.2s;
+  display: inline-block;
+}
+
+.star-rating .star.selected {
+  color: gold;
+}
+
+.star-rating .star:hover {
+  transform: scale(1.1);
+}
+
+/* 😀 Mood */
+.mood-select span {
+  font-size: clamp(24px, 5vw, 28px);
+  cursor: pointer;
+  margin: clamp(3px, 1vw, 5px);
+  transition: transform 0.2s, filter 0.2s;
+  display: inline-block;
+}
+
+.mood-select span.active {
+  transform: scale(1.3);
+  border-bottom: 2px solid #00c3ff;
+  filter: drop-shadow(0 0 6px #00c3ff);
+}
+
+/* Form Inputs */
+textarea, 
+select, 
+input[type=text], 
+input[type=email], 
+input[type=file] {
+  width: 100%;
+  padding: clamp(8px, 2vw, 12px);
+  margin-top: 8px;
+  border-radius: 6px;
+  border: none;
+  background: #fff;
+  color: #000;
+  font-size: clamp(14px, 2.5vw, 16px);
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: outline 0.2s;
+}
+
+textarea {
+  resize: vertical;
+  min-height: clamp(60px, 15vw, 80px);
+}
+
+textarea:focus, 
+select:focus, 
+input:focus {
+  outline: 2px solid #00c3ff;
+}
+
+/* Buttons */
+button {
+  background: #00c3ff;
+  color: #fff;
+  border: none;
+  padding: clamp(10px, 2.5vw, 12px);
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-size: clamp(14px, 2.5vw, 16px);
+  transition: background 0.3s, transform 0.1s;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+button:hover {
+  background: #0099cc;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Thank You Message */
+.thankyou-message {
+  margin-top: clamp(15px, 3vw, 20px);
+  text-align: center;
+  font-size: clamp(16px, 3vw, 18px);
+  color: #00ff99;
+  line-height: 1.5;
+}
+
+/* Theme Toggle (if exists) */
+#theme-toggle {
+  position: fixed;
+  top: clamp(10px, 2.5vw, 15px);
+  right: clamp(10px, 2.5vw, 15px);
+  width: clamp(35px, 8vw, 40px);
+  height: clamp(35px, 8vw, 40px);
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  border-radius: 50%;
+  border: none;
+  background: var(--card, #2a2a2a);
+  color: var(--text, #fff);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, transform 0.2s;
+  z-index: 999;
+}
+
+#theme-toggle:hover {
+  transform: scale(1.05);
+}
+
+/* ================================
+   🌍 RESPONSIVE DESIGN BREAKPOINTS
+   ================================ */
+
+/* For Tablets and Small Laptops (768px - 992px) */
+@media (max-width: 992px) {
+  .container {
+    width: 90%;
+    max-width: 550px;
+    padding: 16px;
+    margin: 50px auto;
+  }
+
+  textarea, 
+  select, 
+  input[type=text], 
+  input[type=email], 
+  input[type=file] {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  button {
+    font-size: 15px;
+    padding: 11px;
+  }
+
+  .mood-select span,
+  .star-rating .star {
+    font-size: 26px;
+  }
+}
+
+/* For Mobile Devices (481px - 768px) */
+@media (max-width: 768px) {
+  body {
+    padding: 0 15px;
+  }
+
+  .container {
+    width: 100%;
+    margin: 45px auto;
+    padding: 15px;
+  }
+
+  h1 {
+    font-size: 1.7rem;
+  }
+
+  .card {
+    padding: 11px;
+  }
+}
+
+/* For Mobile Devices (up to 600px) */
+@media (max-width: 600px) {
+  body {
+    padding: 0 10px;
+  }
+
+  .container {
+    width: 100%;
+    margin: 40px auto;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  .card {
+    padding: 10px;
+    margin: 10px 0;
+  }
+
+  textarea, 
+  select, 
+  input[type=text], 
+  input[type=email], 
+  input[type=file] {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .home-btn {
+    top: 10px;
+    left: 10px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+
+  .mood-select span,
+  .star-rating .star {
+    font-size: 24px;
+    margin: 4px;
+  }
+
+  #theme-toggle {
+    top: 12px;
+    right: 12px;
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
+}
+
+/* For Very Small Phones (up to 400px) */
+@media (max-width: 400px) {
+  body {
+    padding: 0 8px;
+  }
+
+  .container {
+    padding: 12px;
+    margin: 35px auto;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  button {
+    font-size: 13px;
+    padding: 9px;
+  }
+
+  .card {
+    padding: 8px;
+  }
+
+  .home-btn {
+    top: 8px;
+    left: 8px;
+    padding: 5px 8px;
+    font-size: 0.85rem;
+  }
+
+  .mood-select span,
+  .star-rating .star {
+    font-size: 22px;
+    margin: 3px;
+  }
+
+  #theme-toggle {
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+}
+
+/* For Extra Small Phones (up to 360px) */
+@media (max-width: 360px) {
+  .container {
+    padding: 10px;
+    margin: 30px auto;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  .card h3 {
+    font-size: 1rem;
+  }
+
+  button {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
+
+/* Landscape Mobile Optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+  .container {
+    margin: 20px auto;
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+
+  .card {
+    padding: 8px;
+    margin: 8px 0;
+  }
+
+  textarea {
+    min-height: 50px;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  textarea, 
+  select, 
+  input[type=text], 
+  input[type=email], 
+  input[type=file] {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    min-height: 44px;
+  }
+
+  button {
+    min-height: 44px;
+  }
+
+  .home-btn {
+    min-height: 36px;
+    min-width: 36px;
+  }
+
+  #theme-toggle {
+    min-height: 36px;
+    min-width: 36px;
+  }
+
+  .star-rating .star,
+  .mood-select span {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  /* Remove tap highlight */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .home-btn,
+  #theme-toggle {
+    display: none;
+  }
+
+  .container {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  button {
+    display: none;
+  }
+}
   </style>
 </head>
 <body>
-  <a href="index.html" class="home-btn">← Home</a>
+  <a href="dashboard.html" class="home-btn">← Home</a>
   <div class="container">
     <h1>📝 Feedback & Suggestions</h1>
 
