@@ -1,41 +1,42 @@
-// server.js (fixed — minimal changes)
+// server.js (Updated for Gemini 2.5 models)
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const fs = require("fs"); // ← single import (no duplicate)
+const fs = require("fs");
 const OpenAI = require("openai");
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-
 const app = express();
 app.use(cors());
 
-// parse JSON once with larger limit and urlencoded once
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "public")));
 
-// --- Separate Gemini clients (you already set these env vars) ---
+// --- Separate Gemini clients ---
 const genAI_resume = new GoogleGenerativeAI(process.env.RESUME_API_KEY);
 const genAI_interview = new GoogleGenerativeAI(process.env.INTERVIEW_API_KEY);
 const genAI_trends = new GoogleGenerativeAI(process.env.TRENDS_API_KEY);
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// ⚡ UPDATED: Using Gemini 2.5 Flash (best for free tier: 10 req/min, 250 req/day)
+const GEMINI_MODEL = "gemini-2.5-flash";
+
 // -------------------
-// General / simple generate endpoint (uses genAI_resume in your code)
+// General / simple generate endpoint
 // -------------------
 app.post("/api/generate", async (req, res) => {
   const { prompt } = req.body;
   if (!prompt) return res.status(400).json({ error: "Missing prompt" });
 
   try {
-    // kept your existing client usage (genAI_resume) — do change to another client if needed
-    const model = genAI_resume.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // ⚡ UPDATED MODEL
+    const model = genAI_resume.getGenerativeModel({ model: GEMINI_MODEL });
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
     });
@@ -52,7 +53,7 @@ app.post("/api/generate", async (req, res) => {
 });
 
 // -------------------
-// AI Resume Parser (uses genAI_resume)
+// AI Resume Parser
 // -------------------
 app.post("/api/parse-resume", async (req, res) => {
   try {
@@ -79,11 +80,14 @@ Output MUST be valid JSON and nothing else. Use this schema:
 Resume text:
 \"\"\"${text}\"\"\"`;
 
-    const model = genAI_resume.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // ⚡ UPDATED MODEL
+    const model = genAI_resume.getGenerativeModel({ model: GEMINI_MODEL });
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      temperature: 0,
-      maxOutputTokens: 800,
+      generationConfig: {
+        temperature: 0,
+        maxOutputTokens: 800,
+      }
     });
 
     const aiText =
@@ -111,18 +115,15 @@ Resume text:
 });
 
 // -------------------
-// Mock Interview APIs (uses genAI_interview) - IMPROVED VERSION
+// Mock Interview APIs - IMPROVED VERSION
 // -------------------
 
-// In-memory storage for interview sessions (use Redis/DB in production)
 const interviewSessions = new Map();
 
-// Generate unique session ID
 function generateSessionId() {
   return Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
-// Start Interview -> first question with session tracking
 app.post("/api/start-interview", async (req, res) => {
   const { role, type, difficulty, sessionId } = req.body;
   if (!role || !type) return res.status(400).json({ error: "Missing role/type" });
@@ -132,7 +133,6 @@ app.post("/api/start-interview", async (req, res) => {
     let questionCount = 1;
     let previousQuestions = [];
 
-    // If no session ID, create new session
     if (!currentSessionId) {
       currentSessionId = generateSessionId();
       interviewSessions.set(currentSessionId, {
@@ -145,7 +145,6 @@ app.post("/api/start-interview", async (req, res) => {
         startTime: new Date()
       });
     } else {
-      // Get existing session
       const session = interviewSessions.get(currentSessionId);
       if (session) {
         questionCount = session.questionCount + 1;
@@ -153,7 +152,6 @@ app.post("/api/start-interview", async (req, res) => {
       }
     }
 
-    // Check if we've reached the limit
     if (questionCount > 5) {
       return res.json({ 
         question: null, 
@@ -187,17 +185,19 @@ Make it specific, relevant, and ${difficulty} level difficulty.${previousQuestio
 
 Only output the QUESTION, nothing else.`;
 
-    const model = genAI_interview.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // ⚡ UPDATED MODEL
+    const model = genAI_interview.getGenerativeModel({ model: GEMINI_MODEL });
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      temperature: 0.8, // Higher temperature for more variety
+      generationConfig: {
+        temperature: 0.8,
+      }
     });
 
     const question =
       result?.response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
       fallbackInterviewQuestion(role, type, difficulty, questionCount);
 
-    // Update session
     const session = interviewSessions.get(currentSessionId);
     if (session) {
       session.questions.push(question);
@@ -224,7 +224,6 @@ Only output the QUESTION, nothing else.`;
   }
 });
 
-// Evaluate Answer -> feedback + unique ideal answer
 app.post("/api/evaluate-answer", async (req, res) => {
   const { question, answer, role, type, sessionId, questionNumber } = req.body;
   if (!question || !answer) return res.status(400).json({ error: "Missing Q/A" });
@@ -252,11 +251,14 @@ Respond ONLY in JSON format:
   "improvements": ["area1", "area2"]
 }`;
 
-    const model = genAI_interview.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // ⚡ UPDATED MODEL
+    const model = genAI_interview.getGenerativeModel({ model: GEMINI_MODEL });
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      temperature: 0.3,
-      maxOutputTokens: 800,
+      generationConfig: {
+        temperature: 0.3,
+        maxOutputTokens: 800,
+      }
     });
 
     const raw = result?.response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
@@ -279,7 +281,6 @@ Respond ONLY in JSON format:
       parsed = fallbackEvaluateAnswer(question, answer, role, questionNumber);
     }
 
-    // Store answer in session
     if (sessionId && interviewSessions.has(sessionId)) {
       const session = interviewSessions.get(sessionId);
       session.answers.push({
@@ -293,7 +294,6 @@ Respond ONLY in JSON format:
       });
     }
 
-    // Ensure proper format
     const response = {
       feedback: Array.isArray(parsed.feedback) ? parsed.feedback : [parsed.feedback || "Good effort on your answer."],
       idealAnswer: parsed.idealAnswer || `An ideal answer would provide specific examples and demonstrate your experience with ${role} responsibilities.`,
@@ -311,7 +311,6 @@ Respond ONLY in JSON format:
   }
 });
 
-// Generate Interview Summary
 app.post("/api/interview-summary", async (req, res) => {
   const { sessionId } = req.body;
   if (!sessionId || !interviewSessions.has(sessionId)) {
@@ -322,12 +321,10 @@ app.post("/api/interview-summary", async (req, res) => {
     const session = interviewSessions.get(sessionId);
     const { role, type, answers, startTime } = session;
 
-    // Calculate metrics
     const totalScore = answers.reduce((sum, a) => sum + (a.score || 5), 0);
     const averageScore = Math.round(totalScore / answers.length * 10) / 10;
-    const duration = Math.round((new Date() - startTime) / 1000 / 60); // minutes
+    const duration = Math.round((new Date() - startTime) / 1000 / 60);
 
-    // Generate AI summary
     const prompt = `Generate a comprehensive interview summary for a ${role} candidate.
 
 Interview Details:
@@ -356,10 +353,13 @@ Provide a JSON response with:
   "nextSteps": ["next step suggestions"]
 }`;
 
-    const model = genAI_interview.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // ⚡ UPDATED MODEL
+    const model = genAI_interview.getGenerativeModel({ model: GEMINI_MODEL });
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      temperature: 0.2,
+      generationConfig: {
+        temperature: 0.2,
+      }
     });
 
     const raw = result?.response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
@@ -376,7 +376,6 @@ Provide a JSON response with:
       }
     }
 
-    // Fallback summary if AI fails
     if (!aiSummary) {
       aiSummary = {
         overallRating: averageScore >= 8 ? "Excellent" : averageScore >= 6 ? "Good" : averageScore >= 4 ? "Average" : "Needs Improvement",
@@ -407,10 +406,9 @@ Provide a JSON response with:
       }))
     };
 
-    // Clean up session after summary
     setTimeout(() => {
       interviewSessions.delete(sessionId);
-    }, 300000); // Delete after 5 minutes
+    }, 300000);
 
     res.json(fullSummary);
 
@@ -420,7 +418,6 @@ Provide a JSON response with:
   }
 });
 
-// --- Enhanced Fallback Functions ---
 function fallbackInterviewQuestion(role, type, difficulty, questionNumber = 1) {
   const questions = {
     1: `Tell me about yourself and what interests you about this ${role} position.`,
@@ -445,13 +442,14 @@ function fallbackEvaluateAnswer(question, answer, role, questionNumber = 1) {
   return {
     feedback: specificFeedback[questionNumber] || [`You provided a thoughtful answer.`, `For a ${role} position, try to include more specific examples.`],
     idealAnswer: `An ideal answer to "${question}" would provide specific examples, quantifiable results, and demonstrate clear alignment with ${role} responsibilities and requirements.`,
-    score: Math.floor(Math.random() * 3) + 5, // 5-7 range for fallback
+    score: Math.floor(Math.random() * 3) + 5,
     strengths: ["Clear communication", "Relevant experience"],
     improvements: ["More specific examples", "Better structure"]
   };
 }
+
 // -------------------
-// Industry Trends API (uses genAI_trends)
+// Industry Trends API
 // -------------------
 app.post("/api/trends", async (req, res) => {
   const { topic } = req.body;
@@ -490,12 +488,14 @@ Return this exact JSON structure:
 
     if (!genAI_trends) throw new Error("Gemini not configured (missing API key)");
 
-    const model = genAI_trends.getGenerativeModel({ model: "gemini-1.5-flash" });
-    // ← use the contents shape (consistent with other calls)
+    // ⚡ UPDATED MODEL
+    const model = genAI_trends.getGenerativeModel({ model: GEMINI_MODEL });
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      temperature: 0.2,
-      maxOutputTokens: 2000
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 2000
+      }
     });
 
     let aiText = result?.response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
@@ -529,9 +529,6 @@ Return this exact JSON structure:
   }
 });
 
-// -------------------
-// Fallback Generator
-// -------------------
 function createEnhancedFallbackResponse(topic) {
   return {
     overview: `The ${topic} industry is growing rapidly with strong adoption across multiple sectors. Demand for skilled professionals continues to rise as businesses seek innovation in ${topic}.`,
@@ -586,7 +583,6 @@ function validateAndEnhanceResponse(data, topic) {
 // -------------------
 const FEEDBACK_FILE = path.join(__dirname, "feedback.json");
 
-// Ensure file exists
 if (!fs.existsSync(FEEDBACK_FILE)) {
   fs.writeFileSync(FEEDBACK_FILE, "[]", "utf-8");
 }
@@ -633,9 +629,6 @@ app.post("/api/feedback", async (req, res) => {
   }
 });
 
-/// -------------------
-// Project Planner Fallback + Validator
-// -------------------
 function createProjectPlannerFallback(idea, domain, duration, teamSize, complexity) {
   const template = {
     requirements: ["Requirement 1", "Requirement 2", "Requirement 3"],
@@ -681,7 +674,7 @@ function validateProjectPlanResponse(data, idea, domain, duration, teamSize, com
 }
 
 // -------------------
-// ✅ Project Planner API using Gemini
+// ✅ Project Planner API using OpenAI with Enhanced Fallback
 // -------------------
 app.post("/api/project-planner", async (req, res) => {
   const { idea, domain, duration, teamSize, complexity } = req.body;
@@ -691,73 +684,338 @@ app.post("/api/project-planner", async (req, res) => {
   }
 
   try {
-    const prompt = `
-        You are an expert project manager and technical architect. Create a comprehensive project plan:
+    const prompt = `You are an expert project manager and technical architect. Create a comprehensive project plan:
 
-        Project Idea: "${idea}"
-        Domain: ${domain}
-        Duration: ${duration}
-        Team Size: ${teamSize}
-        Complexity: ${complexity}
+Project Idea: "${idea}"
+Domain: ${domain}
+Duration: ${duration}
+Team Size: ${teamSize}
+Complexity: ${complexity}
 
-        CRITICAL: Respond ONLY with valid JSON. No markdown, no code blocks, no explanations.
+CRITICAL: Respond ONLY with valid JSON. No markdown, no code blocks, no explanations.
 
-        Return this JSON:
+Return this JSON:
+{
+  "overview": "2-3 sentence project overview",
+  "requirements": [
+    "List all functional requirements",
+    "Include recommended technologies, frameworks, programming languages, and tools (e.g., React, Node.js, MongoDB, AWS, etc.)"
+  ],
+  "roadmap": ["step1","step2","step3","step4","step5","step6","step7","step8"],
+  "roles": [
+    {"role":"Role Name", "responsibilities":["resp1","resp2","resp3"]}
+  ],
+  "timeline": [
+    {"milestone":"Milestone Name","time":"X weeks"}
+  ],
+  "deliverables": ["deliverable1","deliverable2"],
+  "risks": ["risk1","risk2"],
+  "suggestions": "Detailed suggestions with specific tech stack and best practices"
+}
+
+Focus especially on including the full recommended technology stack (front-end, back-end, database, deployment tools) in the "requirements".`;
+
+    // ⚡ Try OpenAI API with proper error handling
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
         {
-          "overview": "2-3 sentence project overview",
-          "requirements": [
-            "List all functional requirements",
-            "Include recommended technologies, frameworks, programming languages, and tools (e.g., React, Node.js, MongoDB, AWS, etc.)"
-          ],
-          "roadmap": ["step1","step2","step3","step4","step5","step6","step7","step8"],
-          "roles": [
-            {"role":"Role Name", "responsibilities":["resp1","resp2","resp3"]}
-          ],
-          "timeline": [
-            {"milestone":"Milestone Name","time":"X weeks"}
-          ],
-          "deliverables": ["deliverable1","deliverable2"],
-          "risks": ["risk1","risk2"],
-          "suggestions": "Detailed suggestions with specific tech stack and best practices"
+          role: "system",
+          content: "You are an expert project manager and technical architect who provides detailed, actionable project plans in JSON format."
+        },
+        {
+          role: "user",
+          content: prompt
         }
+      ],
+      temperature: 0.7,
+      max_tokens: 2000,
+      response_format: { type: "json_object" }
+    });
 
-        Focus especially on including the full recommended technology stack (front-end, back-end, database, deployment tools) in the "requirements".
-        `;
+    let aiText = completion.choices[0].message.content.trim();
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    const result = await model.generateContent(prompt);
-    let aiText = result.response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-
-    if (!aiText) throw new Error("Empty response from Gemini");
+    if (!aiText) throw new Error("Empty response from OpenAI");
+    
+    // Clean up any potential markdown
     aiText = aiText.replace(/```json|```/g, "").trim();
 
     let parsed;
     try {
       parsed = JSON.parse(aiText);
-    } catch {
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError);
       const match = aiText.match(/\{[\s\S]*\}/);
-      if (match) parsed = JSON.parse(match[0]);
+      if (match) {
+        try {
+          parsed = JSON.parse(match[0]);
+        } catch (e) {
+          console.error("Fallback parse failed:", e);
+          parsed = null;
+        }
+      }
     }
 
-    if (!parsed) parsed = createProjectPlannerFallback(idea, domain, duration, teamSize, complexity);
+    if (!parsed) {
+      parsed = createProjectPlannerFallback(idea, domain, duration, teamSize, complexity);
+    }
+    
     parsed = validateProjectPlanResponse(parsed, idea, domain, duration, teamSize, complexity);
 
     res.json(parsed);
+    
   } catch (error) {
-    console.error("Gemini Project Planner error:", error.message);
-    res.status(500).json({
-      error: `Gemini API failed → fallback mode: ${error.message}`,
-      ...createProjectPlannerFallback(idea, domain, duration, teamSize, complexity)
+    console.error("OpenAI Project Planner error:", error);
+    
+    // Handle specific OpenAI errors
+    let shouldUseFallback = true;
+    let errorType = "unknown";
+    
+    if (error.response) {
+      const status = error.response.status;
+      const errorMessage = error.response.data?.error?.message || error.message;
+      
+      if (status === 429) {
+        errorType = "quota_exceeded";
+        console.log("⚠️ OpenAI quota exceeded - using intelligent fallback");
+      } else if (status === 401) {
+        errorType = "invalid_api_key";
+        console.log("⚠️ Invalid OpenAI API key - using fallback");
+      } else if (status === 500 || status === 503) {
+        errorType = "server_error";
+        console.log("⚠️ OpenAI server error - using fallback");
+      }
+    } else if (error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT') {
+      errorType = "network_error";
+      console.log("⚠️ Network error - using fallback");
+    }
+    
+    // Use intelligent fallback
+    const fallbackResponse = createProjectPlannerFallback(idea, domain, duration, teamSize, complexity);
+    
+    res.json({
+      ...fallbackResponse,
+      _meta: {
+        source: "fallback",
+        reason: errorType,
+        message: "AI service temporarily unavailable - using intelligent project plan generation"
+      }
     });
   }
 });
 
+// -------------------
+// 🔧 Enhanced Fallback Function
+// -------------------
+function createProjectPlannerFallback(idea, domain, duration, teamSize, complexity) {
+  const durationWeeks = parseInt(duration);
+  const isLargeTeam = parseInt(teamSize) > 5;
+  const isComplex = complexity === "High" || complexity === "Medium";
 
+  // Domain-specific tech stacks
+  const techStacks = {
+    "Web Development": {
+      frontend: ["React.js", "Next.js", "Tailwind CSS", "TypeScript"],
+      backend: ["Node.js", "Express.js", "PostgreSQL/MongoDB"],
+      tools: ["Git", "VS Code", "Postman", "Docker"],
+      deployment: ["Vercel", "AWS", "Netlify"]
+    },
+    "Mobile App": {
+      frontend: ["React Native", "Flutter", "Kotlin/Swift"],
+      backend: ["Firebase", "Node.js", "GraphQL"],
+      tools: ["Android Studio", "Xcode", "Git"],
+      deployment: ["Google Play Store", "Apple App Store"]
+    },
+    "Data Science": {
+      languages: ["Python", "R", "SQL"],
+      libraries: ["Pandas", "NumPy", "Scikit-learn", "TensorFlow"],
+      tools: ["Jupyter Notebook", "Git", "Docker"],
+      deployment: ["AWS SageMaker", "Google Colab", "Heroku"]
+    },
+    "Machine Learning": {
+      languages: ["Python", "TensorFlow", "PyTorch"],
+      tools: ["Jupyter", "Git", "MLflow", "Docker"],
+      cloud: ["AWS", "Google Cloud AI", "Azure ML"],
+      deployment: ["FastAPI", "Flask", "Streamlit"]
+    },
+    "Cloud Computing": {
+      platforms: ["AWS", "Azure", "Google Cloud"],
+      services: ["EC2", "S3", "Lambda", "Kubernetes"],
+      tools: ["Terraform", "Docker", "Jenkins"],
+      languages: ["Python", "Go", "Bash"]
+    },
+    "AI/ML": {
+      frameworks: ["TensorFlow", "PyTorch", "Keras", "Hugging Face"],
+      languages: ["Python", "R"],
+      tools: ["Jupyter", "Git", "MLflow", "Weights & Biases"],
+      deployment: ["FastAPI", "Streamlit", "AWS SageMaker"]
+    },
+    "Blockchain": {
+      platforms: ["Ethereum", "Solana", "Polygon"],
+      languages: ["Solidity", "Rust", "JavaScript"],
+      tools: ["Hardhat", "Truffle", "MetaMask", "Web3.js"],
+      frontend: ["React", "Next.js", "ethers.js"]
+    },
+    "IoT": {
+      hardware: ["Raspberry Pi", "Arduino", "ESP32"],
+      languages: ["Python", "C++", "MicroPython"],
+      protocols: ["MQTT", "HTTP", "WebSocket"],
+      cloud: ["AWS IoT", "Azure IoT Hub", "Google Cloud IoT"]
+    },
+    "Cybersecurity": {
+      tools: ["Wireshark", "Metasploit", "Burp Suite", "Nmap"],
+      languages: ["Python", "Bash", "C"],
+      frameworks: ["OWASP", "Kali Linux"],
+      skills: ["Penetration Testing", "Threat Analysis", "Encryption"]
+    },
+    "Game Development": {
+      engines: ["Unity", "Unreal Engine", "Godot"],
+      languages: ["C#", "C++", "GDScript"],
+      tools: ["Blender", "Git", "Photoshop"],
+      deployment: ["Steam", "Itch.io", "Google Play"]
+    }
+  };
+
+  const selectedTech = techStacks[domain] || techStacks["Web Development"];
+  
+  // Build comprehensive tech requirements
+  const techRequirements = [];
+  Object.entries(selectedTech).forEach(([category, items]) => {
+    const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
+    techRequirements.push(`${categoryName}: ${items.join(", ")}`);
+  });
+
+  return {
+    overview: `${idea} is a ${complexity.toLowerCase()}-complexity ${domain.toLowerCase()} project designed for a team of ${teamSize} over ${duration}. This project will leverage modern technologies and best practices to deliver a production-ready solution that addresses real-world challenges in the ${domain.toLowerCase()} space.`,
+    
+    requirements: [
+      `Core Functionality: Implement ${idea} with full ${domain.toLowerCase()} capabilities`,
+      ...techRequirements,
+      `Development Environment: Version control (Git), CI/CD pipeline, testing frameworks`,
+      `Documentation: Technical documentation, API docs, user guides`,
+      isComplex ? `Advanced Features: Scalability, security, performance optimization` : `Standard Features: User authentication, data validation, error handling`,
+      `Quality Assurance: Unit testing, integration testing, code reviews`
+    ],
+    
+    roadmap: [
+      "Week 1-2: Project setup, requirements gathering, and technology stack finalization",
+      `Week ${Math.ceil(durationWeeks * 0.2)}-${Math.ceil(durationWeeks * 0.35)}: Design architecture, create wireframes/mockups, and set up development environment`,
+      `Week ${Math.ceil(durationWeeks * 0.35)}-${Math.ceil(durationWeeks * 0.55)}: Core feature development and database implementation`,
+      `Week ${Math.ceil(durationWeeks * 0.55)}-${Math.ceil(durationWeeks * 0.7)}: Frontend/UI development and API integration`,
+      `Week ${Math.ceil(durationWeeks * 0.7)}-${Math.ceil(durationWeeks * 0.8)}: Testing (unit, integration, user acceptance)`,
+      `Week ${Math.ceil(durationWeeks * 0.8)}-${Math.ceil(durationWeeks * 0.9)}: Bug fixes, performance optimization, and security hardening`,
+      `Week ${Math.ceil(durationWeeks * 0.9)}-${durationWeeks}: Deployment, documentation, and final presentation preparation`,
+      `Post-launch: Monitoring, maintenance, and iterative improvements`
+    ],
+    
+    roles: [
+      {
+        role: "Project Manager",
+        responsibilities: [
+          "Coordinate team activities and sprint planning",
+          "Track progress and manage timelines",
+          "Stakeholder communication and risk management"
+        ]
+      },
+      {
+        role: domain.includes("Web") || domain.includes("Mobile") ? "Frontend Developer" : "Lead Developer",
+        responsibilities: [
+          `Implement ${domain.toLowerCase()} features and functionality`,
+          "Write clean, maintainable code following best practices",
+          "Conduct code reviews and ensure quality standards"
+        ]
+      },
+      {
+        role: domain.includes("Web") || domain.includes("Mobile") ? "Backend Developer" : "Data Engineer",
+        responsibilities: [
+          "Design and implement backend architecture",
+          "Database design and optimization",
+          "API development and integration"
+        ]
+      },
+      isLargeTeam ? {
+        role: "QA Engineer",
+        responsibilities: [
+          "Develop and execute test plans",
+          "Automated and manual testing",
+          "Bug tracking and quality assurance"
+        ]
+      } : null,
+      {
+        role: "UI/UX Designer",
+        responsibilities: [
+          "Create user-friendly interfaces and experiences",
+          "Design wireframes, mockups, and prototypes",
+          "Ensure accessibility and responsive design"
+        ]
+      }
+    ].filter(Boolean),
+    
+    timeline: [
+      { milestone: "Project Kickoff & Planning", time: `${Math.ceil(durationWeeks * 0.15)} weeks` },
+      { milestone: "Design & Architecture", time: `${Math.ceil(durationWeeks * 0.2)} weeks` },
+      { milestone: "Development Phase", time: `${Math.ceil(durationWeeks * 0.4)} weeks` },
+      { milestone: "Testing & QA", time: `${Math.ceil(durationWeeks * 0.15)} weeks` },
+      { milestone: "Deployment & Launch", time: `${Math.ceil(durationWeeks * 0.1)} weeks` }
+    ],
+    
+    deliverables: [
+      "Fully functional application with all core features",
+      "Source code repository with proper documentation",
+      "Technical documentation and API references",
+      "User manual and deployment guide",
+      "Test reports and quality assurance documentation",
+      isComplex ? "Scalable architecture with cloud deployment" : "Working prototype with local deployment",
+      "Project presentation and demo video"
+    ],
+    
+    risks: [
+      "Scope creep - Mitigation: Clear requirements and change management process",
+      "Technical challenges - Mitigation: Proof of concepts and early prototyping",
+      "Time constraints - Mitigation: Agile methodology with weekly sprints",
+      "Team coordination - Mitigation: Daily standups and communication tools",
+      isComplex ? "Performance issues - Mitigation: Load testing and optimization" : "Integration issues - Mitigation: Continuous integration testing",
+      "Security vulnerabilities - Mitigation: Security audits and best practices"
+    ],
+    
+    suggestions: `For ${idea}, focus on: 1) ${isComplex ? 'Building a scalable microservices architecture' : 'Creating a solid MVP first'}, 2) Implementing ${Object.values(selectedTech)[0]?.[0] || 'modern technologies'} with best practices, 3) Regular code reviews and testing, 4) ${isLargeTeam ? 'Clear role distribution and communication channels' : 'Pair programming and knowledge sharing'}, 5) Continuous deployment and monitoring. ${domain === "Web Development" ? 'Consider using Next.js for SSR, implement SEO best practices, and ensure mobile responsiveness.' : domain === "Mobile App" ? 'Focus on native performance, offline capabilities, and app store optimization.' : domain === "Data Science" || domain === "Machine Learning" ? 'Emphasize data quality, model validation, and explainability.' : 'Follow industry-standard practices and security guidelines.'} Start with a proof of concept, iterate based on feedback, and maintain comprehensive documentation throughout the project lifecycle.`
+  };
+}
+
+// -------------------
+// 🔧 Validation Function (Keep existing one or use this enhanced version)
+// -------------------
+function validateProjectPlanResponse(parsed, idea, domain, duration, teamSize, complexity) {
+  const fallback = createProjectPlannerFallback(idea, domain, duration, teamSize, complexity);
+  
+  return {
+    overview: parsed.overview || fallback.overview,
+    requirements: Array.isArray(parsed.requirements) && parsed.requirements.length > 0 
+      ? parsed.requirements 
+      : fallback.requirements,
+    roadmap: Array.isArray(parsed.roadmap) && parsed.roadmap.length > 0 
+      ? parsed.roadmap 
+      : fallback.roadmap,
+    roles: Array.isArray(parsed.roles) && parsed.roles.length > 0 
+      ? parsed.roles 
+      : fallback.roles,
+    timeline: Array.isArray(parsed.timeline) && parsed.timeline.length > 0 
+      ? parsed.timeline 
+      : fallback.timeline,
+    deliverables: Array.isArray(parsed.deliverables) && parsed.deliverables.length > 0 
+      ? parsed.deliverables 
+      : fallback.deliverables,
+    risks: Array.isArray(parsed.risks) && parsed.risks.length > 0 
+      ? parsed.risks 
+      : fallback.risks,
+    suggestions: parsed.suggestions || fallback.suggestions
+  };
+}
 app.get(/.*/, (req, res) =>
   res.sendFile(path.join(__dirname, "public/index.html"))
 );
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () =>
-  console.log(`✅ Server running with Gemini at http://localhost:${PORT}`)
+  console.log(`✅ Server running with Gemini 2.5 at http://localhost:${PORT}`)
 );
