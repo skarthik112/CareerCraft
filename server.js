@@ -9,9 +9,12 @@ const OpenAI = require("openai");
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
-
+import { fileURLToPath } from "url";
 const app = express();
 app.use(cors());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -1011,11 +1014,12 @@ function validateProjectPlanResponse(parsed, idea, domain, duration, teamSize, c
     suggestions: parsed.suggestions || fallback.suggestions
   };
 }
-app.get(/.*/, (req, res) =>
-  res.sendFile(path.join(__dirname, "public/index.html"))
-);
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
+// ✅ Use Render’s dynamic port and 0.0.0.0 host
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`✅ Server running with Gemini 2.5 at http://localhost:${PORT}`)
-);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server running with Gemini 2.5 on port ${PORT}`);
+});
