@@ -5,49 +5,64 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 20px;
+  padding: clamp(15px, 3vw, 20px);
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .container {
   background: #1c1f26;
   border-radius: 16px;
-  max-width: 1200px;  /* Increased from 800px */
-  width: 95%;         /* Increased from 90% */
-  padding: 40px;
+  max-width: 1200px;
+  width: 100%;
+  padding: clamp(20px, 4vw, 40px);
   box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-  margin: 20px;
+  margin: clamp(15px, 3vw, 20px) auto;
+  box-sizing: border-box;
 }
 
 h1 {
   text-align: center;
   color: #fff;
-  margin-bottom: 20px;
+  margin-bottom: clamp(15px, 3vw, 20px);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.3;
+  padding: 0 10px;
 }
 
 .card {
   background: #2a2f38;
-  padding: 20px;
+  padding: clamp(15px, 3vw, 20px);
   border-radius: 12px;
-  margin-bottom: 20px;
+  margin-bottom: clamp(15px, 3vw, 20px);
+  box-sizing: border-box;
 }
 
 label {
   color: #ccc;
   font-weight: 500;
   display: block;
-  margin-top: 15px;
+  margin-top: clamp(12px, 2.5vw, 15px);
   margin-bottom: 6px;
+  font-size: clamp(0.9rem, 2vw, 1rem);
 }
 
 textarea, select, input[type="number"] {
   width: 100%;
-  padding: 14px 16px;
+  padding: clamp(12px, 2.5vw, 14px) clamp(14px, 3vw, 16px);
   border: 1px solid #404550;
   border-radius: 8px;
   background: #1a1e25;
   color: #fff;
-  font-size: 16px;
+  font-size: clamp(0.9rem, 2.5vw, 16px);
   box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+  transition: outline 0.2s;
+}
+
+textarea {
+  resize: vertical;
+  min-height: clamp(80px, 20vw, 120px);
 }
 
 textarea:focus, select:focus, input:focus {
@@ -55,35 +70,43 @@ textarea:focus, select:focus, input:focus {
 }
 
 button {
-  margin-top: 25px;
+  margin-top: clamp(20px, 4vw, 25px);
   width: 100%;
   background: linear-gradient(90deg, #00c6ff, #0072ff);
   color: #fff;
-  padding: 12px;
-  font-size: 16px;
+  padding: clamp(10px, 2.5vw, 12px);
+  font-size: clamp(0.9rem, 2.5vw, 16px);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, transform 0.1s;
+  font-weight: 600;
+  min-height: 44px;
 }
 
 button:hover {
   opacity: 0.9;
 }
 
+button:active {
+  transform: scale(0.98);
+}
+
 .home-btn {
   position: fixed;
-  top: 20px;
-  left: 20px;
+  top: clamp(10px, 2.5vw, 20px);
+  left: clamp(10px, 2.5vw, 20px);
   z-index: 1000;
   display: inline-block;
-  margin: 15px 25px;
-  padding: 8px 14px;
+  margin: 0;
+  padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2vw, 14px);
   background: #1e1e1e;
   border-radius: 6px;
   color: #ccc;
   text-decoration: none;
-  transition: 0.2s;
+  transition: background 0.2s, color 0.2s;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  white-space: nowrap;
 }
 
 .home-btn:hover {
@@ -92,31 +115,273 @@ button:hover {
 }
 
 .results {
-  margin-top: 30px;
+  margin-top: clamp(20px, 4vw, 30px);
 }
 
 .role-card {
   background: #1c1f26;
-  padding: 15px;
+  padding: clamp(12px, 2.5vw, 15px);
   border-radius: 8px;
-  margin-bottom: 10px;
+  margin-bottom: clamp(8px, 2vw, 10px);
   border-left: 4px solid #00c6ff;
+  box-sizing: border-box;
 }
 
 h2, h3 {
   color: #fff;
-  margin-bottom: 15px;
+  margin-bottom: clamp(12px, 2.5vw, 15px);
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  line-height: 1.3;
+}
+
+h3 {
+  font-size: clamp(1.1rem, 2.5vw, 1.3rem);
 }
 
 p, li {
   color: #ccc;
   line-height: 1.6;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  margin-bottom: clamp(6px, 1.5vw, 8px);
 }
 
 ul, ol {
-  padding-left: 20px;
+  padding-left: clamp(18px, 4vw, 20px);
+  margin: clamp(8px, 2vw, 10px) 0;
 }
 
 li {
-  margin-bottom: 8px;
+  margin-bottom: clamp(6px, 1.5vw, 8px);
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+
+/* Tablet and below (768px) */
+@media (max-width: 768px) {
+  body {
+    padding: 15px 10px;
+    align-items: flex-start;
+  }
+
+  .container {
+    width: 100%;
+    margin: 15px 0;
+    padding: 20px 15px;
+    border-radius: 12px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    margin-bottom: 15px;
+  }
+
+  .card {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
+  .role-card {
+    padding: 12px;
+  }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+  body {
+    padding: 10px 5px;
+  }
+
+  .container {
+    width: 100%;
+    margin: 10px 0;
+    padding: 16px 12px;
+    border-radius: 10px;
+  }
+
+  .home-btn {
+    top: 10px;
+    left: 10px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    padding: 0 5px;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  .card {
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+  }
+
+  label {
+    margin-top: 10px;
+    font-size: 0.9rem;
+  }
+
+  textarea, select, input[type="number"] {
+    padding: 11px 12px;
+    font-size: 14px;
+  }
+
+  textarea {
+    min-height: 80px;
+  }
+
+  button {
+    margin-top: 18px;
+    padding: 11px;
+    font-size: 15px;
+  }
+
+  .results {
+    margin-top: 20px;
+  }
+
+  .role-card {
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+
+  p, li {
+    font-size: 0.9rem;
+  }
+
+  ul, ol {
+    padding-left: 18px;
+  }
+}
+
+/* Very small screens (360px and below) */
+@media (max-width: 360px) {
+  body {
+    padding: 8px 4px;
+  }
+
+  .container {
+    padding: 14px 10px;
+    margin: 8px 0;
+  }
+
+  .home-btn {
+    top: 8px;
+    left: 8px;
+    padding: 5px 8px;
+    font-size: 0.8rem;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  h2 {
+    font-size: 1.15rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+  }
+
+  .card {
+    padding: 10px;
+  }
+
+  p, li {
+    font-size: 0.85rem;
+  }
+}
+
+/* Large tablets (769px to 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    max-width: 900px;
+    width: 95%;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+  body {
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .container {
+    margin: 10px auto;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+
+  .card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  textarea {
+    min-height: 60px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  textarea, select, input[type="number"] {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    min-height: 44px;
+  }
+
+  button {
+    min-height: 44px;
+  }
+
+  .home-btn {
+    min-height: 36px;
+    min-width: 36px;
+  }
+
+  select {
+    padding-right: 30px;
+  }
+
+  /* Remove tap highlight */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Print styles */
+@media print {
+  .home-btn {
+    display: none;
+  }
+
+  .container {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  button {
+    display: none;
+  }
+
+  .card,
+  .role-card {
+    break-inside: avoid;
+  }
 }
