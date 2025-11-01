@@ -18,5 +18,8 @@
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "openai": "^5.20.2"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.16"
   }
 }
