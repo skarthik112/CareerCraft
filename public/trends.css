@@ -3,66 +3,98 @@ body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background: #0d1117;
   color: #e4e6eb;
+  overflow-x: hidden;
 }
 
 .container {
   max-width: 1000px;
-  margin: 40px auto;
-  padding: 20px;
+  width: calc(100% - 40px);
+  margin: clamp(20px, 4vw, 40px) auto;
+  padding: clamp(15px, 3vw, 20px);
   background: #161b22;
   border-radius: 12px;
   box-shadow: 0 0 25px rgba(0, 200, 255, 0.2);
+  box-sizing: border-box;
 }
 
 .header {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
+  padding-top: clamp(50px, 12vw, 20px);
+  margin-bottom: 10px;
 }
 
 .home-btn {
-      position: fixed;       /* stays at top-left */
-      top: 20px;
-      left: 20px;
-      z-index: 1000;
-      display: inline-block;
-      margin: 15px 25px;
-      padding: 8px 14px;
-      background: #1e1e1e;
-      border-radius: 6px;
-      color: #ccc;
-      text-decoration: none;
-      transition: 0.2s;
-    }
-    .home-btn:hover {
-      background: #333;
-      color: #fff;
-    }
+  position: fixed;
+  top: clamp(10px, 2.5vw, 20px);
+  left: clamp(10px, 2.5vw, 20px);
+  z-index: 1000;
+  display: inline-block;
+  margin: 0;
+  padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2vw, 14px);
+  background: #1e1e1e;
+  border-radius: 6px;
+  color: #ccc;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  white-space: nowrap;
+}
+.home-btn:hover {
+  background: #333;
+  color: #fff;
+}
 
 .page-title {
   color: #00c3ff;
-  font-size: 2rem;
+  font-size: clamp(1.3rem, 5vw, 2rem);
+  text-align: center;
+  margin: 10px 0 10px 0;
+  line-height: 1.2;
+  word-wrap: break-word;
+  padding-top: clamp(5px, 2vw, 0px);
 }
 
 .page-subtitle {
   text-align: center;
   color: #b0b3b8;
-  margin-bottom: 20px;
+  margin-bottom: clamp(15px, 3vw, 20px);
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
+  line-height: 1.6;
+  padding: 0 10px;
 }
 
 .search-box {
   display: flex;
-  gap: 10px;
-  margin: 20px 0;
+  gap: clamp(8px, 2vw, 10px);
+  margin: clamp(15px, 3vw, 20px) 0;
+  flex-wrap: wrap;
+  align-items: stretch;
 }
 
 .search-box input {
-  flex: 1;
-  padding: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: clamp(10px, 2.5vw, 12px);
   border-radius: 8px;
   border: 1px solid #30363d;
   background: #0d1117;
   color: white;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #00c3ff;
+}
+
+.search-box input::placeholder {
+  color: #8b949e;
 }
 
 .search-box button {
@@ -70,19 +102,260 @@ body {
   color: black;
   border: none;
   border-radius: 8px;
-  padding: 10px 18px;
+  padding: clamp(10px, 2.5vw, 12px) clamp(16px, 3.5vw, 20px);
   font-weight: bold;
   cursor: pointer;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.1s;
+  flex-shrink: 0;
+  min-width: fit-content;
 }
 
 .search-box button:hover {
   background: #009edb;
 }
 
+.search-box button:active {
+  transform: scale(0.98);
+}
+
 .card {
   background: #0d1117;
   border: 1px solid #30363d;
   border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 20px;
+  padding: clamp(12px, 3vw, 16px);
+  margin-bottom: clamp(15px, 3vw, 20px);
+  word-wrap: break-word;
+  box-sizing: border-box;
+}
+
+.card h3,
+.card h4 {
+  font-size: clamp(1.1rem, 3vw, 1.3rem);
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #00c3ff;
+  line-height: 1.3;
+}
+
+.card p,
+.card li {
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.card ul,
+.card ol {
+  padding-left: clamp(20px, 4vw, 30px);
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+
+/* Tablet and below (768px) */
+@media (max-width: 768px) {
+  .container {
+    width: calc(100% - 30px);
+    margin: 15px auto;
+    padding: 15px;
+  }
+
+  .search-box {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .search-box input {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .search-box button {
+    width: 100%;
+    padding: 12px;
+  }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .header {
+    padding-top: 50px;
+  }
+
+  .home-btn {
+    top: 10px;
+    left: 10px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  .container {
+    width: calc(100% - 20px);
+    margin: 10px auto;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .page-title {
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    padding: 0 5px;
+  }
+
+  .card {
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+  }
+
+  .card h3,
+  .card h4 {
+    font-size: 1.1rem;
+  }
+
+  .card p,
+  .card li {
+    font-size: 0.9rem;
+  }
+
+  .search-box {
+    margin: 12px 0;
+  }
+
+  .search-box input {
+    padding: 11px;
+  }
+
+  .search-box button {
+    padding: 11px;
+  }
+}
+
+/* Very small screens (360px and below) */
+@media (max-width: 360px) {
+  .home-btn {
+    font-size: 0.8rem;
+    padding: 5px 8px;
+    top: 8px;
+    left: 8px;
+  }
+
+  .container {
+    width: calc(100% - 16px);
+    margin: 8px auto;
+    padding: 10px;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .card h3,
+  .card h4 {
+    font-size: 1rem;
+  }
+
+  .card p,
+  .card li {
+    font-size: 0.85rem;
+  }
+}
+
+/* Large tablets and small desktops (769px to 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    width: calc(100% - 60px);
+    max-width: 900px;
+  }
+}
+
+/* Landscape mobile optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+  .container {
+    margin: 10px auto;
+    padding: 12px;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+
+  .search-box {
+    margin: 10px 0;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .search-box input {
+    min-height: 44px;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+
+  .search-box button {
+    min-height: 44px;
+  }
+
+  .home-btn {
+    min-height: 36px;
+    min-width: 36px;
+  }
+
+  .search-box button:hover {
+    background: #00c3ff;
+  }
+
+  .search-box button:active {
+    background: #009edb;
+  }
+
+  /* Remove tap highlight on mobile */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* High DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .card {
+    border-width: 0.5px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .home-btn {
+    display: none;
+  }
+
+  .container {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .card {
+    break-inside: avoid;
+  }
 }
