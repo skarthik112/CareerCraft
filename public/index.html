@@ -1,404 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>CareerCraft</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to CareerCraft</title>
+    
+    <!-- Define Tailwind config before loading the script -->
+    <script>
+        window.tailwind = {
+            config: {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ['Inter', 'sans-serif'],
+                        },
+                        colors: {
+                            brand: {
+                                50: '#eff6ff',
+                                100: '#dbeafe',
+                                200: '#bfdbfe',
+                                300: '#93c5fd',
+                                400: '#60a5fa',
+                                500: '#3b82f6',
+                                600: '#2563eb',
+                                700: '#1d4ed8',
+                                800: '#1e40af',
+                                900: '#1e3a8a',
+                                950: '#172554',
+                            },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Lucide icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
     <style>
-      /* Login Modal Styles */
-      .login-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.95);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        backdrop-filter: blur(8px);
-      }
-      
-      .login-modal.hidden {
-        display: none;
-      }
-      
-      .login-container {
-        width: 100%;
-        max-width: 440px;
-        padding: 32px;
-        background: var(--card);
-        border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        margin: 20px;
-      }
-      
-      .login-header {
-        text-align: center;
-        margin-bottom: 24px;
-      }
-      
-      .login-header h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #fff;
-        margin: 0 0 8px 0;
-      }
-      
-      .login-header p {
-        font-size: 0.875rem;
-        color: var(--muted);
-        margin: 0;
-      }
-      
-      /* Tab Headers */
-      .tab-headers {
-        display: flex;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 24px;
-      }
-      
-      .tab-btn {
-        flex: 1;
-        padding: 12px;
-        font-weight: 600;
-        text-align: center;
-        color: var(--muted);
-        background: none;
-        border: none;
-        border-bottom: 2px solid transparent;
-        cursor: pointer;
-        transition: all 0.2s;
-        margin-bottom: -2px;
-      }
-      
-      .tab-btn.active {
-        color: var(--accent);
-        border-bottom-color: var(--accent);
-      }
-      
-      /* Message Area */
-      .message-area {
-        padding: 12px;
-        border-radius: 8px;
-        text-align: center;
-        font-size: 0.875rem;
-        margin-bottom: 16px;
-        display: none;
-      }
-      
-      .message-area.success {
-        background: rgba(34, 197, 94, 0.2);
-        color: #86efac;
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        display: block;
-      }
-      
-      .message-area.error {
-        background: rgba(239, 68, 68, 0.2);
-        color: #fca5a5;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        display: block;
-      }
-      
-      /* Tab Content */
-      .tab-content {
-        display: none;
-      }
-      
-      .tab-content.active {
-        display: block;
-      }
-      
-      /* Form Styles */
-      .form-group {
-        margin-bottom: 16px;
-      }
-      
-      .form-row {
-        display: flex;
-        gap: 12px;
-      }
-      
-      .form-row .form-group {
-        flex: 1;
-      }
-      
-      .form-group label {
-        display: block;
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 6px;
-      }
-      
-      .form-group input {
-        width: 100%;
-        padding: 10px 14px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        color: #fff;
-        font-size: 0.875rem;
-        transition: all 0.2s;
-        box-sizing: border-box;
-        font-family: 'Inter', sans-serif;
-      }
-      
-      .form-group input:focus {
-        outline: none;
-        border-color: var(--accent);
-        background: rgba(255, 255, 255, 0.08);
-        box-shadow: 0 0 0 3px rgba(0, 186, 242, 0.1);
-      }
-      
-      .form-group input::placeholder {
-        color: rgba(255, 255, 255, 0.4);
-      }
-      
-      .forgot-password {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: -8px;
-        margin-bottom: 16px;
-      }
-      
-      .forgot-password a {
-        color: var(--accent);
-        font-size: 0.875rem;
-        text-decoration: none;
-        font-weight: 500;
-      }
-      
-      .forgot-password a:hover {
-        color: #4fd1c5;
-      }
-      
-      .submit-btn {
-        width: 100%;
-        padding: 12px;
-        background: var(--accent);
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-family: 'Inter', sans-serif;
-      }
-      
-      .submit-btn:hover {
-        background: #0097d6;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 186, 242, 0.4);
-      }
+        /* Using Inter font as a modern default */
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Hide scrollbars */
+        }
+
+        /* Style for the background video */
+        #bg-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -10;
+            transform: translateX(-50%) translateY(-50%);
+            object-fit: cover;
+        }
+
+        /* --- NEW: Blinking cursor animation --- */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        /* Applied to the h1's cursor */
+        #typing-cursor-h1.blinking {
+            animation: blink 0.7s infinite;
+        }
     </style>
-  </head>
-  <body data-theme="dark">
-    <!-- Login/Signup Modal -->
-    <div id="login-modal" class="login-modal">
-      <div class="login-container">
-        
-        <!-- Header -->
-        <div class="login-header">
-          <h1>CareerCraft</h1>
-          <p>Start your journey. Create an account to craft your career.</p>
-        </div>
+</head>
+<body class="bg-gray-900 text-white antialiased">
 
-        <!-- Tab Headers -->
-        <div class="tab-headers">
-          <button id="login-tab-btn" class="tab-btn active" onclick="switchTab('login')">
-            Log In
-          </button>
-          <button id="signup-tab-btn" class="tab-btn" onclick="switchTab('signup')">
-            Sign Up
-          </button>
-        </div>
+    <!-- Background Video -->
+    <!-- You can replace this src with your own video file -->
+    <video autoplay loop muted playsinline id="bg-video">
+        <source src="background.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
-        <!-- Message Area -->
-        <div id="message-area" class="message-area"></div>
+    <!-- Dark Overlay -->
+    <div class="fixed top-0 left-0 w-full h-full bg-black/60 z-[-5]"></div>
 
-        <!-- Login Form -->
-        <div id="login-form" class="tab-content active">
-          <form id="login-form-element" onsubmit="handleLogin(event)">
-            <div class="form-group">
-              <label for="login-email">Email address</label>
-              <input id="login-email" name="email" type="email" autocomplete="email" required>
-            </div>
-            <div class="form-group">
-              <label for="login-password">Password</label>
-              <input id="login-password" name="password" type="password" autocomplete="current-password" required>
-            </div>
-            <div class="forgot-password">
-              <a href="#">Forgot password?</a>
-            </div>
-            <button type="submit" class="submit-btn">Log In</button>
-          </form>
-        </div>
+    <!-- Page Content -->
+    <div class="relative z-10 flex min-h-screen flex-col">
+        <!-- Header / Navigation -->
+        <header class="p-6 md:p-8">
+            <nav class="flex items-center justify-between">
+                <!-- Logo: Removed href, added transition and hover opacity -->
+                <div class="flex items-center gap-2 cursor-default transition-opacity duration-200 hover:opacity-80">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600 text-white">
+                        <svg data-lucide="graduation-cap" width="24" height="24"></svg>
+                    </div>
+                    <span class="text-xl font-bold text-white">CareerCraft</span>
+                </div>
+                
+                <!-- MODIFIED: Sign In Link: Added border to make it look more like a button -->
+                <div>
+                    <a href="login.html" class="rounded-lg border border-white/50 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/20">
+                        Sign In
+                    </a>
+                </div>
+            </nav>
+        </header>
 
-        <!-- Sign Up Form -->
-        <div id="signup-form" class="tab-content">
-          <form id="signup-form-element" onsubmit="handleSignup(event)">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="signup-firstname">First Name</label>
-                <input id="signup-firstname" name="firstName" type="text" required>
-              </div>
-              <div class="form-group">
-                <label for="signup-lastname">Last Name</label>
-                <input id="signup-lastname" name="lastName" type="text" required>
-              </div>
+        <!-- Hero Content -->
+        <main class="flex flex-1 items-center justify-center text-center">
+            <div class="flex flex-col items-center px-4">
+                <!-- MODIFIED: Swapped gradient for typing animation -->
+                <h1 class="text-4xl font-bold tracking-tight text-white sm:text-6xl md:text-7xl" style="min-height: 1.2em;"> <!-- Set min-height to prevent layout shift -->
+                   <span id="typing-span-h1"></span><!-- Text will be typed here -->
+                   <span id="typing-cursor-h1" class="opacity-0 transition-opacity duration-300">|</span>
+                </h1>
+                
+                <!-- MODIFIED: Removed typing animation, text is now static -->
+                <p class="mt-0 max-w-2xl text-lg leading-8 text-gray-200">
+                    Get AI-powered resume insights, practice mock interviews, and land the job of your dreams. Your career journey starts here.
+                </p> 
+                
+                <!-- MODIFIED: Container for "Get Started" button and new "Sign Up" link -->
+                <!-- Increased gap to gap-4 for better spacing between buttons -->
+                <div class="mt-2 flex flex-col items-center gap-0">
+                    <!-- "Get Started" button (href removed) -->
+                    <a class="rounded-lg bg-brand-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-brand-500 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">
+                        Get Started For Free
+                    </a>
+                    
+                    <!-- MODIFIED: "Sign Up" link, styled just like the "Sign In" link (with border) -->
+                    <a href="signup.html" class="rounded-lg border border-white/50 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/20">
+                        Sign Up
+                    </a>
+                </div>
             </div>
-            <div class="form-group">
-              <label for="signup-email">Email address</label>
-              <input id="signup-email" name="email" type="email" autocomplete="email" required>
-            </div>
-            <div class="form-group">
-              <label for="signup-password">Password</label>
-              <input id="signup-password" name="password" type="password" required>
-            </div>
-            <div class="form-group">
-              <label for="signup-confirm-password">Confirm Password</label>
-              <input id="signup-confirm-password" name="confirmPassword" type="password" required>
-            </div>
-            <button type="submit" class="submit-btn">Create Account</button>
-          </form>
-        </div>
-      </div>
+        </main> 
     </div>
 
-    <header class="hero">
-      <h1>CareerCraft</h1>
-      <p class="tagline">Your Future Starts Today.</p>
-      <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
-    </header>
-
-    <main>
-      <section class="features-grid">
-        <a href="resume.html" class="feature-card">
-          <div class="icon">
-            <img src="icons/resume.png" alt="Resume icon" />
-          </div>
-          <h3>Resume Insights</h3>
-          <p>Analyze your skills & discover best job matches.</p>
-        </a>
-        <a href="interview.html" class="feature-card">
-          <div class="icon">
-            <img src="icons/interview.png" alt="Interview icon" />
-          </div>
-          <h3>Mock Interview</h3>
-          <p>Practice and get a report card.</p>
-        </a>
-        <a href="trends.html" class="feature-card">
-          <div class="icon">
-            <img src="icons/trends.png" alt="Trends icon" />
-          </div>
-          <h3>Industry Trends</h3>
-          <p>Latest trends and course suggestions.</p>
-        </a>
-        <a href="planner.html" class="feature-card">
-          <div class="icon">
-            <img src="icons/planner.png" alt="Planner icon" />
-          </div>
-          <h3>Project Planner</h3>
-          <p>Turn ideas into execution plans.</p>
-        </a>
-        <a href="feedback.html" class="feature-card">
-          <div class="icon">
-            <img src="icons/feedback.png" alt="Feedback icon" />
-          </div>
-          <h3>Feedback</h3>
-          <p>Help us improve CareerCraft.</p>
-        </a>
-      </section>
-    </main>
-
-    <footer>
-      <p>© 2025 CareerCraft — Empowering Careers</p>
-    </footer>
-
     <script>
-      const loginTabBtn = document.getElementById('login-tab-btn');
-      const signupTabBtn = document.getElementById('signup-tab-btn');
-      const loginForm = document.getElementById('login-form');
-      const signupForm = document.getElementById('signup-form');
-      const messageArea = document.getElementById('message-area');
+        // Initialize Lucide icons on load
+        window.addEventListener("load", () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            } else {
+                console.error("Lucide script not loaded yet.");
+            }
 
-      // Function to switch between Login and Sign Up tabs
-      function switchTab(tab) {
-        if (tab === 'login') {
-          loginForm.classList.add('active');
-          signupForm.classList.remove('active');
-          loginTabBtn.classList.add('active');
-          signupTabBtn.classList.remove('active');
-        } else {
-          loginForm.classList.remove('active');
-          signupForm.classList.add('active');
-          loginTabBtn.classList.remove('active');
-          signupTabBtn.classList.add('active');
-        }
-        messageArea.classList.remove('success', 'error');
-        messageArea.style.display = 'none';
-      }
+            // --- MODIFIED: Typing Effect for H1 ---
+            const textToType = "Craft Your Future";
+            const typingEl = document.getElementById("typing-span-h1");
+            const cursorEl = document.getElementById("typing-cursor-h1");
+            let charIndex = 0;
 
-      // Function to display messages
-      function displayMessage(message, type) {
-        messageArea.textContent = message;
-        messageArea.className = 'message-area ' + type;
-      }
+            if (typingEl && cursorEl) { // Check if elements exist
+                function typeChar() {
+                    if (charIndex < textToType.length) {
+                        typingEl.textContent += textToType.charAt(charIndex);
+                        charIndex++;
+                        // Slower speed for the heading
+                        setTimeout(typeChar, 100); // 100ms typing speed
+                    } else {
+                        // Typing done, stop cursor blink
+                        cursorEl.classList.remove("blinking");
+                        cursorEl.style.opacity = 0;
+                    }
+                }
 
-      // Handle Login
-      function handleLogin(event) {
-        event.preventDefault();
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
-
-        console.log('Login attempt with:', { email, password });
-        
-        // --- TODO: API INTEGRATION ---
-        // Replace with your actual API call
-        
-        // Mock Success
-        if (email === "test@example.com" && password === "password") {
-          displayMessage('Login successful! Redirecting...', 'success');
-          setTimeout(() => {
-            document.getElementById('login-modal').classList.add('hidden');
-          }, 1500);
-        } else {
-          displayMessage('Invalid credentials. Try test@example.com / password', 'error');
-        }
-      }
-
-      // Handle Sign Up
-      function handleSignup(event) {
-        event.preventDefault();
-        const firstName = document.getElementById('signup-firstname').value;
-        const lastName = document.getElementById('signup-lastname').value;
-        const email = document.getElementById('signup-email').value;
-        const password = document.getElementById('signup-password').value;
-        const confirmPassword = document.getElementById('signup-confirm-password').value;
-
-        if (password !== confirmPassword) {
-          displayMessage('Passwords do not match.', 'error');
-          return;
-        }
-
-        console.log('Sign Up attempt with:', { firstName, lastName, email, password });
-        
-        // --- TODO: API INTEGRATION ---
-        // Replace with your actual API call
-        
-        // Mock Success
-        displayMessage('Account created successfully! Please log in.', 'success');
-        setTimeout(() => {
-          switchTab('login');
-        }, 1500);
-      }
-    </script>
-    <script src="script.js"></script>
-  </body>
+                // Start after a short delay
+                setTimeout(() => {
+                    cursorEl.style.opacity = 1;
+                    cursorEl.classList.add("blinking");
+                    typeChar();
+                }, 500); // 0.5-second delay before starting
+            }
+        });
+    </script> 
+</body> 
 </html>
